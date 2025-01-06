@@ -1,0 +1,30 @@
+name: flutter_matrix
+description: The matrix class designed for Flutter can also be used in pure Dart, 
+  and is also a full-platform alternative to the Matply library. 
+  It supports basic matrix operations, linear algebra, probability
+  theory and mathematical statistics, geometric simulation, central difference, etc.
+homepage: https://www.robot-shadow.cn/src/pkg/MatPly_Dart/site/
+repository: https://github.com/PythonnotJava/MatPly
+documentation: https://www.robot-shadow.cn/src/pkg/MatPly_Dart/site/
+
+version: 0.1.1
+
+environment:
+  sdk: ">=3.0.0"
+
+dependencies:
+  collection: '>=1.15.1'
+
+topics:
+  - matrix
+  - random
+  - linalg
+  - math
+
+platforms:
+  windows:
+  android:
+  linux:
+  iOS:
+  macOS:
+  web:

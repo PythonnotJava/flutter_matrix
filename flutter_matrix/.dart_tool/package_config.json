@@ -1,0 +1,21 @@
+{
+  "configVersion": 2,
+  "packages": [
+    {
+      "name": "collection",
+      "rootUri": "file:///C:/Users/25654/AppData/Local/Pub/Cache/hosted/pub.dev/collection-1.19.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "flutter_matrix",
+      "rootUri": "../",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    }
+  ],
+  "generated": "2025-01-05T15:59:13.121431Z",
+  "generator": "pub",
+  "generatorVersion": "3.6.0-255.0.dev",
+  "pubCache": "file:///C:/Users/25654/AppData/Local/Pub/Cache"
+}
