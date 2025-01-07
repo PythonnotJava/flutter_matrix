@@ -4,6 +4,13 @@ import 'dart:math' as math;
 /// Calculation accuracy
 const double EPSILON = 1.4901161193847656e-08;
 const double euler = 0.57721566490153286060651209;
+const double pi = math.pi;
+const double e = math.e;
+const double ln2 = math.ln2;
+const double log2e = math.log2e;
+const double log10e = math.log10e;
+const double sqrt1_2 = math.sqrt1_2;
+const double sqrt2 = math.sqrt2;
 
 /// Hexadecimal to Ansi
 String hexToAnsi(String hexColor) {

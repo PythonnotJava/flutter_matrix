@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'flutter_matrix.dart';
 
 main() {
@@ -9,5 +7,10 @@ main() {
     [0, 3, 1, 9],
     [5, 6, 3, 2]
   ]);
-  MatrixGeometry.ellipse_area(a: 4, b: 3, size: 100).visible();
+  Matrix([
+    [1, 2],
+    [2, 3],
+    [3, 6],
+    [4, 3]
+  ]).fft_complex().visible();
 }

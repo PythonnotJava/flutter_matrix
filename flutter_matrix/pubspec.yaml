@@ -25,6 +25,6 @@ platforms:
   windows:
   android:
   linux:
-  iOS:
-  macOS:
+  ios:
+  macos:
   web:

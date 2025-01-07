@@ -256,4 +256,63 @@ extension MatrixGeometry on Matrix {
       vec: vec
   );
 
+  /// Rotation Transformation.
+  /// [radian] is true if [theta] is in radians, otherwise it is in degrees
+  Matrix rotate_transform({required double theta, bool radian = true}){
+    assert(shape[1] == 2);
+    if (!radian){
+      theta = theta * (math.pi / 180.0);
+    }
+    double C = math.cos(theta), S = math.sin(theta);
+    return Matrix.fromList(
+      self.map((list){
+        var [x, y] = list;
+        return <double>[C * x - S * y, S * x + C * y];
+      }).toList(),
+      known_row: shape[0],
+      known_column: 2
+    );
+  }
+
+  /// Projection Transformation.
+  Matrix project_transform({required double ux, required double uy}){
+    assert(shape[1] == 2);
+    double delta11 = ux * ux, delta12 = ux * uy;
+    double delta21 = delta12, delta22 = uy * uy;
+    return Matrix.fromList(
+      self.map((list){
+        var [x, y] = list;
+        return <double>[delta11 * x + delta12 * y, delta21 * x + delta22 * y];
+      }).toList(),
+      known_row: shape[0],
+      known_column: 2
+    );
+  }
+
+  /// Shear Transformation.
+  /// When [alongX] is true, it means transforming along the x-axis, otherwise the y-axis
+  Matrix shear_transform({required double k, bool alongX = true}){
+    assert(shape[1] == 2);
+    return Matrix.fromList(
+      alongX ? self.map((list){
+        var [x, y] = list;
+        return <double>[x + k * y, y];
+      }).toList() : self.map((list){
+        var [x, y] = list;
+        return <double>[x, y + x * k];
+      }).toList(),
+      known_row: shape[0],
+      known_column: 2
+    );
+  }
+
+  /// Scaling Transformation.
+  Matrix scale_trasform({required double sx, required double sy}){
+    assert(shape[1] == 2);
+    return Matrix.fromList(
+      self.map((list) => <double>[list[0] * sx, list[1] * sy]).toList(),
+      known_row: shape[0],
+      known_column: 2
+    );
+  }
 }

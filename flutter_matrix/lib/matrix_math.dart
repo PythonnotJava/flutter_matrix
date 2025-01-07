@@ -159,4 +159,28 @@ extension MatrixMath on Matrix {
       known_column: shape[1]
     );
   }
+
+  /// Discrete Fourier Transform.
+  /// Treat each row of data as the real and imaginary parts of a [Complex] number.
+  Matrix dft_complex(){
+    var [row, column] = shape;
+    assert (column == 2);
+    List<List<double>> data = [];
+    for (int k = 0;k < row;k++){
+      Complex complex = Complex();
+      for (int n = 0;n < row;n++){
+        double angle = -2 * math.pi * k * n / row;
+        var [real, imaginary] = self[n];
+        complex = complex + Complex(real: real, imaginary: imaginary) * Complex(real: 0.0, imaginary: angle).exp;
+      }
+      data.add(complex.toList);
+    }
+    return Matrix.fromList(
+      data,
+      known_row: row,
+      known_column: 2
+    );
+  }
+
+  /// Fast Fourier transform, the number of complex numbers must be a power of 2.
 }

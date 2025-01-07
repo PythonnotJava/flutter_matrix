@@ -1,9 +1,8 @@
-import 'dart:convert';
-import 'dart:ffi';
 import 'dart:math' as math;
 import 'dart:core';
 import 'dart:typed_data';
 import 'package:collection/collection.dart';
+import 'package:flutter_matrix/complex.dart';
 
 import 'unrelated_util.dart';
 
