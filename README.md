@@ -1,10 +1,13 @@
-# 💡What's the Flutter Matrix?
+# Flutter Matrix  
 
+---
 <div style="text-align: center;">
     <a href="https://pub.dev/packages/matply">
-        <img src="design.png" alt="" style="border-radius: 20px; display: block;"/>
+        <img src="flutter_matrix/flutter_matrix/docs/design.png" alt="" style="border-radius: 20px; display: block;"/>
     </a>
 </div>
+
+## 💡What's the Flutter Matrix?
 
 ```
 The matrix class designed for Flutter can also be used in pure Dart, 

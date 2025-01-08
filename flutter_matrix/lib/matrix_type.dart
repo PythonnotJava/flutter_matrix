@@ -16,6 +16,7 @@ part 'matrix_geometry.dart';
 
 /// Precision error allowable value.
 double tolerance_round = 1e-10;
+String data_format = '%0.5f';
 
 /// Matrix is matrix class.
 /// - It uses [List] to store core data internally.
@@ -36,15 +37,16 @@ base class Matrix extends Object with MatrixAuxiliary{
   /// Basic constructor, copy the target list data.
   /// If the shape is known, you can optionally pass it in, otherwise it will be calculated by itself.
   Matrix(List<List<num>> data, {int? known_row, int? known_column}){
-    self = data.map((row_list) {
-      return row_list.map((e) => e.toDouble()).toList();
-    }).cast<List<double>>().toList();
-    shape = [known_row ?? data.length, known_column ?? data[0].length];
+    var row = known_row ?? data.length;
+    shape = [row, known_column ?? data[0].length];
+    self = List.generate(row, (r){
+      return [...data[r]].cast<double>();
+    });
   }
 
   /// Shared Target List.
-  Matrix.fromList(List<List<num>> data, {int? known_row, int? known_column}) :
-        self = data.cast<List<double>>(),
+  Matrix.fromList(List<List<double>> data, {int? known_row, int? known_column}) :
+        self = data,
         shape = [known_row ?? data.length, known_column ?? data[0].length];
 
   /// Fill with specified number.
@@ -71,10 +73,11 @@ base class Matrix extends Object with MatrixAuxiliary{
     required double end,
     bool keep = true,
     required int row,
-    required int column,
+    required int column
   }) {
     assert(row > 0 && column > 0);
     final size = row * column;
+    shape = [row, column];
     final step = keep ? (end - start) / (size - 1) : (end - start) / size;
     int index = 0;
     self = List.generate(row, (_) => List.generate(column, (_) => start + index++ * step));
@@ -118,7 +121,8 @@ base class Matrix extends Object with MatrixAuxiliary{
 
   /// format is *%x.y* format, color is a *HEX color* string, such as #000fff
   @override
-  String toString({String format = '%0.5f', String color = '#ffd700'}) {
+  String toString({String? format, String color = '#ffd700'}) {
+    format ??= data_format;
     final rgbColor = hexToAnsi(color);
     const resetColor = '\x1B[0m';
     final regex = RegExp(r'%([0-9]+)\.([0-9]+)f');
@@ -237,7 +241,7 @@ base class Matrix extends Object with MatrixAuxiliary{
     }
   }
 
-  Matrix operator ^ (num other) => power(number: other.toDouble(), reverse: false);
+  Matrix operator ^ (num number) => power(number: number.toDouble(), reverse: false);
 
   /// Modify a row element. Note that this does not copy the element, but points to the list address.
   void operator []= (int index, List<double> value){

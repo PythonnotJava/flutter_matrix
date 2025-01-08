@@ -1,0 +1,19 @@
+site_name: Flutter_Matrix Docs
+site_url: https://github.com/PythonnotJava/flutter_matrix
+
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - API Reference:
+    - 类型定义和构建: API/define.md
+    - 基础操作: API/basement.md
+
+# mkdocs build

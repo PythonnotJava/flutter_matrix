@@ -1,7 +1,7 @@
 part of 'matrix_type.dart';
 extension MatrixBase on Matrix  {
   /// Quick view a matrix.
-  void visible({String format = '%0.5f', String color = '#ffd700'}) => print(toString(format: format, color: color));
+  void visible({String? format, String color = '#ffd700'}) => print(toString(format: format, color: color));
 
   /// Determine whether the shapes are the same.
   bool hasSameShape(Matrix other) => shape[0] == other.shape[0] && shape[1] == other.shape[1];

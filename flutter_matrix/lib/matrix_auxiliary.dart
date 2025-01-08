@@ -26,6 +26,8 @@ mixin MatrixAuxiliary{
       1 => (x, y) => x - y,
       2 => (x, y) => x * y,
       3 => (x, y) => x / y,
+      4 => (x, y) => (x ~/ y).toDouble(),  // non-support
+      5 => (x, y) => (x % y).toDouble(),  // non-support
       _ => (x, y) => double.nan
     };
     return func;
