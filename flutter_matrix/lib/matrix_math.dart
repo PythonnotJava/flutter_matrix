@@ -183,4 +183,52 @@ extension MatrixMath on Matrix {
   }
 
   /// Fast Fourier transform, the number of complex numbers must be a power of 2.
+  Matrix fft_complex() {
+    var [row, column] = shape;
+    assert ((row & (row - 1) == 0) && row >= 2 && column == 2);
+    return Matrix.fromList(
+      _fft(mt_self: self, mt_shape: shape).map((complex) => complex.toList).toList(),
+      known_row: shape[0],
+      known_column: 2
+    );
+  }
+
+  /// Convert to Complex-like matrix.
+  Matrix toComplex(){
+    var [row, column] = shape;
+    List<List<double>> data = [];
+    for (int r = 0;r < row;r++){
+      for (int c = 0;c < column;c++){
+        data.add([self[r][c], 0.0]);
+      }
+    }
+    return Matrix.fromList(
+      data,
+      known_column: 2,
+      known_row: size
+    );
+  }
+
+  /// Discrete Fourier Transform.
+  List<List<Complex>> dft() {
+    int rows = shape[0];
+    int cols = shape[1];
+    List<List<Complex>> result = [];
+    for (int u = 0; u < rows; u++) {
+      List<Complex> ls = [];
+      for (int v = 0; v < cols; v++) {
+        Complex sum = Complex();
+        for (int x = 0; x < rows; x++) {
+          for (int y = 0; y < cols; y++) {
+            double angle = -2 * math.pi * ((u * x / rows) + (v * y / cols));
+            Complex exponent = Complex(imaginary: angle).exp;
+            sum += exponent * Complex(real: self[x][y].toDouble());
+          }
+        }
+        ls.add(sum);
+      }
+      result.add(ls);
+    }
+    return result;
+  }
 }

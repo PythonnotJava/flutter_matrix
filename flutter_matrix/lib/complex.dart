@@ -1,16 +1,16 @@
-import 'dart:math' as math show cos, sin, sqrt, atan2, exp, Point;
 import 'dart:typed_data' show Float64x2;
+import 'dart:math' as math show cos, sin, sqrt, atan2, exp, Point;
 
 import 'unrelated_util.dart' show cosh, sinh;
 
 /// Define basic operations on complex numbers.
 /// For more information, please see https://oi-wiki.org/math/complex/.
 class Complex extends Object{
-  double real = 0.0;
-  double imaginary = 0.0;
+  final double real;
+  final double imaginary;
 
   /// By default, both the [real] and [imaginary] parts of an imaginary number are 0.0.
-  Complex({this.real = 0.0, this.imaginary = 0.0});
+  const Complex({this.real = 0.0, this.imaginary = 0.0});
 
   /// Build by polar.
   factory Complex.fromPolar({required double r, required double theta}) {

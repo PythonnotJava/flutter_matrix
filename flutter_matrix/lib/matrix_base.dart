@@ -294,6 +294,12 @@ extension MatrixBase on Matrix  {
         return self.map((rowList) => Uint32List.fromList(rowList.map((e) => e.toInt()).toList())).toList();
       case Typed.uint64:
         return self.map((rowList) => Uint64List.fromList(rowList.map((e) => e.toInt()).toList())).toList();
+      case Typed.complex:
+        assert(shape[1] == 2);
+        return self.map((rowList){
+          var [r, i] = rowList;
+          return Complex(real: r, imaginary: i);
+        }).toList();
       default:
         throw TypeError();
     }

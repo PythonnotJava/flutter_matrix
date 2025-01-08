@@ -3,7 +3,7 @@ part of 'matrix_type.dart';
 /// Type specification, int and double are standard types,
 /// bool is constructed using [BoolList] which saves more memory,
 /// and others are related to [TypedData].
-enum Typed { int8, int16, int32, int64, int, float32, float64, double, bool, uint8, uint16, uint32, uint64 }
+enum Typed { int8, int16, int32, int64, int, float32, float64, double, bool, uint8, uint16, uint32, uint64, complex }
 
 /// Special attention content information warning by [Alert].
 final class Alert {
@@ -191,5 +191,27 @@ mixin MatrixAuxiliary{
   List<List<double>> _transpose({required List<List<double>> mt_self, required List<int> mt_shape}){
     var [row, column] = mt_shape;
     return List.generate(column, (r) => List.generate(row, (c) => mt_self[c][r]));
+  }
+
+  List<T> _selectEveryNth<T>(List<T> list, int step, int from) {
+    return [for (int i = from; i < list.length; i += step) list[i]];
+  }
+
+  /// Fast Fourier transform.
+  List<Complex> _fft({required List<List<double>> mt_self, required List<int> mt_shape}){
+    var [row, column] = mt_shape;
+    if (row <= 1){
+      var [r, i] = mt_self[0];
+      return [Complex(real: r, imaginary: i)];
+    }
+    List<Complex> even = _fft(mt_self: _selectEveryNth(mt_self, 2, 0), mt_shape: [row ~/ 2, 2]);
+    List<Complex> odd = _fft(mt_self: _selectEveryNth(mt_self, 2, 1), mt_shape: [row ~/ 2, 2]);
+    List<Complex> T = List.generate(row ~/ 2, (r) {
+      var omega = Complex.fromPolar(r: 1, theta: -2 * math.pi * r / row);
+      return omega * odd[r];
+    });
+    return List.generate(row, (r) {
+      return r < row ~/ 2 ? even[r] + T[r] : even[r - row ~/ 2] - T[r - row ~/ 2];
+    });
   }
 }
