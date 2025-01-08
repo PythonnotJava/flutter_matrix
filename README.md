@@ -3,7 +3,7 @@
 ---
 <div style="text-align: center;">
     <a href="https://pub.dev/packages/matply">
-        <img src="flutter_matrix/flutter_matrix/docs/design.png" alt="" style="border-radius: 20px; display: block;"/>
+        <img src="flutter_matrix/docs/design.png" alt="" style="border-radius: 20px; display: block;"/>
     </a>
 </div>
 
