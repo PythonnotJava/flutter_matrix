@@ -31,7 +31,7 @@ extension MatrixBase on Matrix  {
       }
     }else {
       number!;
-      data = List.generate(row, (r) => List.generate(column, (c) => self[r][c] + number));
+      data = List.generate(row, (r) => List.generate(column, (c) => func(self[r][c], number)));
     }
     return Matrix.fromList(data, known_column: column, known_row: row);
   }
@@ -208,7 +208,7 @@ extension MatrixBase on Matrix  {
   }
 
   /// If having the point element
-  bool contains(double element){
+  bool contain(double element){
     for (List<double> list in self){
       if (list.contains(element)){
         return true;
@@ -284,8 +284,6 @@ extension MatrixBase on Matrix  {
         return self.map((rowList) => Float32List.fromList(rowList)).toList();
       case Typed.float64:
         return self.map((rowList) => Float64List.fromList(rowList)).toList();
-      case Typed.int8:
-        return self.map((rowList) => Int8List.fromList(rowList.map((e) => e.toInt()).toList())).toList();
       case Typed.uint8:
         return self.map((rowList) => Uint8List.fromList(rowList.map((e) => e.toInt()).toList())).toList();
       case Typed.uint16:
@@ -294,15 +292,21 @@ extension MatrixBase on Matrix  {
         return self.map((rowList) => Uint32List.fromList(rowList.map((e) => e.toInt()).toList())).toList();
       case Typed.uint64:
         return self.map((rowList) => Uint64List.fromList(rowList.map((e) => e.toInt()).toList())).toList();
+      case Typed.int8:
+        return self.map((rowList) => Int8List.fromList(rowList.map((e) => e.toInt()).toList())).toList();
+      case Typed.int16:
+        return self.map((rowList) => Int16List.fromList(rowList.map((e) => e.toInt()).toList())).toList();
+      case Typed.int32:
+        return self.map((rowList) => Int32List.fromList(rowList.map((e) => e.toInt()).toList())).toList();
+      case Typed.int64:
+        return self.map((rowList) => Int64List.fromList(rowList.map((e) => e.toInt()).toList())).toList();
       case Typed.complex:
         assert(shape[1] == 2);
         return self.map((rowList){
           var [r, i] = rowList;
           return Complex(real: r, imaginary: i);
         }).toList();
-      default:
-        throw TypeError();
-    }
+      }
   }
 
   /// Add a row/column of data at the end without length detection.

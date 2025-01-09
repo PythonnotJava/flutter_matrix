@@ -1,0 +1,30 @@
+<component name="libraryTable">
+  <library name="Dart SDK">
+    <CLASSES>
+      <root url="file://D:/SDK/Dart/lib/async" />
+      <root url="file://D:/SDK/Dart/lib/cli" />
+      <root url="file://D:/SDK/Dart/lib/collection" />
+      <root url="file://D:/SDK/Dart/lib/concurrent" />
+      <root url="file://D:/SDK/Dart/lib/convert" />
+      <root url="file://D:/SDK/Dart/lib/core" />
+      <root url="file://D:/SDK/Dart/lib/developer" />
+      <root url="file://D:/SDK/Dart/lib/ffi" />
+      <root url="file://D:/SDK/Dart/lib/html" />
+      <root url="file://D:/SDK/Dart/lib/indexed_db" />
+      <root url="file://D:/SDK/Dart/lib/io" />
+      <root url="file://D:/SDK/Dart/lib/isolate" />
+      <root url="file://D:/SDK/Dart/lib/js" />
+      <root url="file://D:/SDK/Dart/lib/js_interop" />
+      <root url="file://D:/SDK/Dart/lib/js_interop_unsafe" />
+      <root url="file://D:/SDK/Dart/lib/js_util" />
+      <root url="file://D:/SDK/Dart/lib/math" />
+      <root url="file://D:/SDK/Dart/lib/mirrors" />
+      <root url="file://D:/SDK/Dart/lib/svg" />
+      <root url="file://D:/SDK/Dart/lib/typed_data" />
+      <root url="file://D:/SDK/Dart/lib/web_audio" />
+      <root url="file://D:/SDK/Dart/lib/web_gl" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

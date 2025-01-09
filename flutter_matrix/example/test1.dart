@@ -1,20 +1,14 @@
 import 'package:flutter_matrix/matrix_type.dart';
 
 main() {
+  data_format = "%3.0f";
   List<List<double>> data = [
-    [4, 1, 0, 9],
-    [0, 3, 1, 9],
-    [5, 6, 3, 2],
-    [1, 2, 3, 8],
+    [4, double.nan, 0, 9],
+    [0, 3, 1, double.infinity],
+    [5, 6, 3, -double.infinity],
   ];
-  var mt1 = Matrix.fromList(data);
-  var mt2 = Matrix.E(n: 4);
-  (mt1 + mt2).visible();
-  (mt1 - mt2).visible();
-  (mt1 * mt2).visible();
-  (mt1 / mt2).visible(format: "%8.1f");
-  (mt1 + 1).visible();
-  (mt1 - 2).visible();
-  (mt1 * 3).visible();
-  (mt1 / 4).visible(format: "%2.1f");
+  var mt1 = Matrix(data);
+  mt1
+    ..setMask(nan_mask: 100, inf_mask: 999, nag_inf_mask: -999)
+    ..visible();
 }
