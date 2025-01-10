@@ -15,5 +15,9 @@ nav:
   - API Reference:
     - 类型定义和构建: API/define.md
     - 基础操作: API/basement.md
+    - 辅助: API/auxiliary.md
+    - 函数工具: API/functools.md
+    - 纯数学工具: API/math.md
+    - 概率论与数理统计: API/random.md
 
 # mkdocs build

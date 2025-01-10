@@ -1,34 +1,29 @@
 # 基础操作
 
 ## visible
-> visible({String? format, String color = '#ffd700'})
+> void visible({String? format, String color = '#ffd700', String? start_point, String? end_point})
 > 
-> 快速可视化矩阵，是[toString](define.md#string-tostring)函数的无返回版本
+> 快速可视化矩阵，在[toString](define.md#string-tostring)函数的无返回版本基础上，添加了输出前和输出后的额外信息
 
 ### test
 ```text
 import 'package:flutter_matrix/matrix_type.dart';
 
 main() {
-  List<List<double>> data = [
-    [4, 1, 0, 9],
-    [0, 3, 1, 9],
-    [5, 6, 3, 2],
-    [1, 2, 3, 8],
-  ];
-  var mt1 = Matrix.fromList(data);
-  var mt2 = Matrix.E(n: 4);
-  (mt1 + mt2).visible();
+  var m = Matrix.E(n: 4);
+  m.visible(start_point: "Create an identity matrix.", end_point: "It's Ok!");
 }
 ```
 ### output
 ```text
+Create an identity matrix.
 [
- [5.00000 1.00000 0.00000 9.00000]
- [0.00000 4.00000 1.00000 9.00000]
- [5.00000 6.00000 4.00000 2.00000]
- [1.00000 2.00000 3.00000 9.00000]
+ [1.00000 0.00000 0.00000 0.00000]
+ [0.00000 1.00000 0.00000 0.00000]
+ [0.00000 0.00000 1.00000 0.00000]
+ [0.00000 0.00000 0.00000 1.00000]
 ]
+It's Ok!
 ```
 ## hasSameShape
 > bool hasSameShape(Matrix other)
@@ -81,7 +76,7 @@ false
 ## add/minus/multiply/divide
 > Matrix add({Matrix? other, double? number, int dim = -1})
 > 
-> 加减乘除运算，与重载`+`/`-`/`*`/`/`同种效果
+> 加减乘除运算，与重载`+`/`-`/`*`/`/`同种效果，且都支持简单的[广播](https://numpy.org/doc/stable/user/basics.broadcasting.html)
 ### test
 ```text
 import 'package:flutter_matrix/matrix_type.dart';
@@ -101,6 +96,8 @@ main() {
   print(mt2.multiply(other: mt2));
   print(mt1 / double.nan);
   Matrix.E_like(row: 3, column: 4).minus(number: 1.0).visible();
+  mt1.divide(other: Matrix.fromList([[-1, 1, 2, 3]]), dim: 0).visible();
+  mt1.divide(other: Matrix.fromList([[-1], [1], [2], [3]]), dim: 1).visible();
 }
 ```
 ### output
@@ -133,6 +130,18 @@ main() {
  [ 0.0 -1.0 -1.0 -1.0]
  [-1.0  0.0 -1.0 -1.0]
  [-1.0 -1.0  0.0 -1.0]
+]
+[
+ [-4.0  1.0  0.0  3.0]
+ [-0.0  3.0  0.5  3.0]
+ [-5.0  6.0  1.5  0.7]
+ [-1.0  2.0  1.5  2.7]
+]
+[
+ [-4.0 -1.0 -0.0 -9.0]
+ [ 0.0  3.0  1.0  9.0]
+ [ 2.5  3.0  1.5  1.0]
+ [ 0.3  0.7  1.0  2.7]
 ]
 ```
 ## concat
@@ -644,3 +653,5 @@ main() {
  [     1      2      3      4    232]
 ]
 ```
+
+[下一篇：辅助](auxiliary.md)

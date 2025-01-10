@@ -27,7 +27,8 @@ String hexToAnsi(String hexColor) {
   return '\x1B[38;2;${r};${g};${b}m';
 }
 
-/// Center difference
+/// Center difference.
+/// Borrowed from the GSL2.8 module : https://www.gnu.org/software/gsl/
 double diffCentral(double x, double Function(double) func) {
   num h = EPSILON;
   List<double> a = List<double>.filled(4, 0.0);
