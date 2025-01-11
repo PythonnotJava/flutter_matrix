@@ -11,7 +11,7 @@ extension MatrixBase on Matrix  {
       print(start_point);
     }
     print(toString(format: format, color: color));
-    if (start_point != null){
+    if (end_point != null){
       print(end_point);
     }
   }

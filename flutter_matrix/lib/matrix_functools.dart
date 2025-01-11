@@ -103,4 +103,39 @@ extension MatrixFunctools on Matrix {
       }));
       return Matrix.fromList(data, known_column: column, known_row: row);
     }
+
+    /// Count the number of values that meet the condition.
+    Object count(bool Function(double) condition, {int dim = -1}){
+      if (dim == 0){
+        return List.generate(shape[0], (r){
+          int c = 0;
+          for (var v in self[r]){
+            if (condition(v)){
+              c++;
+            }
+          }
+          return c;
+        });
+      }else if (dim == 1){
+        return List.generate(shape[1], (c){
+          int v = 0;
+          for (int r = 0;r < shape[0];r++){
+            if (condition(self[r][c])){
+              v++;
+            }
+          }
+          return v;
+        });
+      } else {
+        int c = 0;
+        self.forEach((list){
+          for (var v in list){
+            if (condition(v)){
+              c++;
+            }
+          }
+        });
+        return c;
+      }
+    }
 }

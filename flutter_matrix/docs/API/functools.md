@@ -237,4 +237,38 @@ main() {
 ]
 ```
 
+## count
+> Object count(bool Function(double) condition, {int dim = -1})
+> 
+> 统计满足统计值的个数
+### test
+```text
+import 'package:collection/collection.dart';
+import 'package:flutter_matrix/matrix_type.dart';
+
+main() {
+  data_format = "%2.2f";
+  var m = MatrixRandom.uniform(row: 5, column: 5, lb: 0, ub: 1, seed: 42)..visible();
+  print(m.count((x) => x < 0.5, dim: 0));
+  print((m.count((x) => x < 0.5, dim: 0) as List<int>).sum);
+  print(m.count((x) => x < 0.5, dim: 1));
+  print((m.count((x) => x < 0.5, dim: 1) as List<int>).sum);
+  print(m.count((x) => x < 0.5, dim: 2));
+}
+```
+### output
+```text
+[
+ [ 0.15  0.60  0.66  0.22  0.79]
+ [ 0.16  0.41  0.17  0.21  0.57]
+ [ 0.83  0.35  0.89  0.12  0.55]
+ [ 0.89  0.56  0.43  0.68  0.78]
+ [ 0.78  0.20  0.70  0.36  0.48]
+]
+[2, 4, 2, 1, 3]
+12
+[2, 3, 2, 4, 1]
+12
+12
+```
 [下一篇：纯数学工具](math.md)

@@ -178,5 +178,4 @@ extension MatrixLinalg on Matrix{
     }
     return counter;
   }
-
 }

@@ -19,5 +19,6 @@ nav:
     - 函数工具: API/functools.md
     - 纯数学工具: API/math.md
     - 概率论与数理统计: API/random.md
-
+    - 线性代数: API/linalg.md
+    - 复数: API/complex.md
 # mkdocs build
