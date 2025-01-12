@@ -262,9 +262,9 @@ main() {
 
 ### output
 <div class="image-container" style="display: flex;">
-    <img src="../src/toString1.png" alt="">
-    <img src="../src/toString2.png" alt="">
-    <img src="../src/toString3.png" alt="">
+    <img src="src/toString1.png" alt="">
+    <img src="src/toString2.png" alt="">
+    <img src="src/toString3.png" alt="">
 </div>
 
 ## bool operator == (Object other)
