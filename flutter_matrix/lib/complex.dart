@@ -30,8 +30,9 @@ class Complex extends Object{
   String toString({int which = 0}){
     return switch(which){
       0 => "Complex($real, $imaginary)",
-      1 => imaginary >= 0 ? "$real + ${imaginary}j" : "$real - ${imaginary.abs()}j",
-      2 => "($real, ${imaginary}j)",
+      1 => "Complex($real, ${imaginary}j)",
+      2 => imaginary >= 0 ? "$real + ${imaginary}j" : "$real - ${imaginary.abs()}j",
+      3 => "($real, ${imaginary}j)",
       _ => imaginary >= 0 ? "$real+${imaginary}j" : "$real-${imaginary.abs()}j"
     };
   }

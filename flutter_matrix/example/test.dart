@@ -1,15 +1,7 @@
-import 'package:flutter_matrix/matrix_type.dart';
+import 'package:flutter_matrix/complex.dart';
 
 main() {
-  data_format = "%5.2f";
-  var mt = Matrix.fromList([
-    [1, 4, 5, 5],
-    [3, -2, 1, 3],
-    [9, 0, 1, 2],
-    [5, 3, 2, -5]
-  ]);
-  print(mt.rank);
-  mt[3] = [1 - 9, 4 - 0, 5 - 1, 5 - 2]; // row_index0 - row_index2
-  print(mt.det);
-  print(mt.rank);
+  Complex complex = Complex.fromList([1.3, 1.2]);
+  Complex complex1 = Complex(real: 1.3, imaginary: -1.2);
+  print(complex.conjugate == complex1);
 }
