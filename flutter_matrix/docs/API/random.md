@@ -132,49 +132,141 @@ main() {
 > 均匀分布
 ### test
 ```text
-import 'package:flutter_matrix/matrix_type.dart';
+import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'flutter_matrix.dart';
 
-main() {
-  var mt = MatrixRandom.uniform(row: 4, column: 8, seed: 42, lb: 0.0, ub: 1.0);
-  mt.visible(start_point: 'Standard Uniform Distribution.');
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  // 生成1K个标准均匀分布的数据并且使用柱状图可视化
+  static Matrix datas = MatrixRandom.uniform(row: 1, column: 1000, seed: 42);
+  static Map<List<double>, int> maps = datas.toHist(start: 0.0, end: 1.0, counts: 10);
+  var ls = maps.keys.toList();
+
+  FlTitlesData get titlesData => FlTitlesData(
+    show: true,
+    bottomTitles: AxisTitles(
+      sideTitles: SideTitles(
+        showTitles: true,
+        reservedSize: 30,
+        getTitlesWidget: getTitles,
+      ),
+    ),
+    leftTitles: AxisTitles(
+      sideTitles: SideTitles(
+        showTitles: true, // 设置为 true 显示左侧 Y 轴刻度
+        reservedSize: 40, // 留出空间
+        interval: 3, // 设置刻度间隔
+        getTitlesWidget: getLeftTitles, // 自定义左侧刻度标签
+      ),
+    ),
+    topTitles: const AxisTitles(
+      sideTitles: SideTitles(showTitles: false),
+    ),
+    rightTitles: const AxisTitles(
+      sideTitles: SideTitles(showTitles: false),
+    ),
+  );
+
+  // 自定义 Y 轴刻度标签
+  Widget getLeftTitles(double value, TitleMeta meta) {
+    final style = TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 14,
+    );
+    String text;
+    if (value % 3 == 0) { // 仅在指定刻度显示标签
+      text = value.toInt().toString();
+    } else {
+      text = '';
+    }
+    return SideTitleWidget(
+      meta: meta,
+      space: 4,
+      child: Text(text, style: style),
+    );
+  }
+
+  Widget getTitles(double value, TitleMeta meta) {
+    final style = TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 14,
+    );
+    String text = ls[value.toInt()].toString();
+    return SideTitleWidget(
+      meta: meta,
+      space: 4,
+      child: Text(text, style: style),
+    );
+  }
+
+  List<BarChartGroupData> buildGroup(){
+    return List<BarChartGroupData>.generate(ls.length, (r){
+      return BarChartGroupData(
+        x: r,
+        barRods: [
+          BarChartRodData(toY: maps.values.elementAt(r).toDouble()),
+        ]
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: BarChart(
+          BarChartData(
+            barGroups: buildGroup(),
+            titlesData: titlesData,
+          ),
+        ),
+      ),
+    );
+  }
 }
 ```
 ### output
-```text
-Standard Uniform Distribution.
-[
- [0.15093 0.60415 0.66168 0.22099 0.79044 0.16057 0.41156 0.17261]
- [0.20586 0.57412 0.82512 0.34519 0.88897 0.11933 0.54676 0.89321]
- [0.55704 0.42857 0.67850 0.78093 0.77509 0.19538 0.70114 0.35809]
- [0.48500 0.50428 0.37034 0.11767 0.11763 0.61634 0.61388 0.28334]
-]
-```
+![均匀分布](src/uniform.png)
 ## normal
 > static Matrix normal({double mu = 0.0, double sigma = 1.0, required int row, required int column, int? seed})
 > 
 > 正态分布
 ### test
 ```text
-import 'package:flutter_matrix/matrix_type.dart';
-
-main() {
-  var mt = MatrixRandom.normal(row: 5, column: 5, mu: 0.0, sigma: 1.0, seed: 42);
-  mt.visible(start_point: 'Standard Normal Distribution.');
-  print(MatrixRandom.normal(row: 1, column: 100000, mu: 0.0, sigma: 1.0, seed: 42).mean(dim: -1));
-}
+static Matrix datas = MatrixRandom.normal(row: 1, column: 10000, seed: 42);
+static Map<List<double>, int> maps = datas.toHist(start: -10.0, end: 10.0, counts: 100);
+var ls = maps.keys.toList();
 ```
 ### output
-```text
-Standard Normal Distribution.
-[
- [-1.54299 0.16473 0.36539 0.62270 -1.58861]
- [-0.34912 0.35507 0.86065 -0.97463 0.17008]
- [0.24021 -0.52932 -1.20257 1.04149 -1.54033]
- [-0.20545 1.16142 -1.83626 -0.86149 -0.16886]
- [-1.55002 0.89525 -1.23140 -0.79663 0.34899]
-]
--0.003257524342388328
-```
+![正态分布](src/normal.png)
 ## shake_total
 > void shake_total({double bias = 1.0, int? seed})
 > 

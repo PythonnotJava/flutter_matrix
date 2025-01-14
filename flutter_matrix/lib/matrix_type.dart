@@ -13,6 +13,7 @@ part 'matrix_linalg.dart';
 part 'matrix_functools.dart';
 part 'matrix_random.dart';
 part 'matrix_geometry.dart';
+part 'matrix_visualization.dart';
 
 /// Precision error allowable value.
 double tolerance_round = 1e-10;

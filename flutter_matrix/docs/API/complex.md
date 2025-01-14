@@ -148,10 +148,129 @@ true
 ## bool get isNan
 > 判断实部或者虚部含有NaN
 ### test
+```text
+import 'package:flutter_matrix/complex.dart';
+
+main() {
+  Complex complex = Complex.fromList([1.3, double.nan]);
+  print(complex.isNan);
+}
+```
 ### output
+```text
+true
+```
+## double get mod
+> 复数的模
 ### test
+```text
+import 'package:flutter_matrix/complex.dart';
+
+main() {
+  Complex complex = Complex.fromList([1.2, 1.6]);
+  print(complex.mod);
+}
+```
 ### output
+```text
+2.0
+```
+## double get arg
+> 复数的辐角
 ### test
+```text
+import 'package:flutter_matrix/complex.dart';
+
+main() {
+  Complex complex = Complex.fromList([1.2, 1.2]);
+  print(complex.arg);
+}
+```
 ### output
+```text
+0.7853981633974483
+```
+## Complex get exp
+> 欧拉公式
 ### test
+```text
+import 'package:flutter_matrix/complex.dart';
+
+main() {
+  Complex complex = Complex.fromList([1.2, 1.2]);
+  print(complex.exp);
+}
+```
 ### output
+```text
+Complex(1.203070112722819, 3.0944787419716917)
+```
+## Complex get sqrt
+> 平方根
+### test
+```text
+import 'package:flutter_matrix/complex.dart';
+
+main() {
+  Complex complex = Complex.fromList([1.2, 1.2]);
+  print(complex.sqrt);
+}
+```
+### output
+```text
+Complex(1.20354814503777, 0.4985259646436252)
+```
+## 一些三角函数运算
+### test
+```text
+import 'package:flutter_matrix/complex.dart';
+
+main() {
+  Complex complex = Complex.fromList([1.2, 1.2]);
+  print(complex.sin);
+  print(complex.cos);
+  print(complex.tan);
+}
+```
+### output
+```text
+Complex(1.6876017599704798, 0.546965027216471)
+Complex(0.6561050855063479, -1.4068769820012117)
+Complex(0.14015057356642455, 1.134177526770811)
+```
+## deepcopy
+> 复制一个复数
+### test
+```text
+import 'package:flutter_matrix/complex.dart';
+
+main() {
+  Complex complex = Complex.fromList([1.2, 1.2]);
+  print(complex.deepcopy == complex);
+  print(identical(complex.deepcopy, complex));
+}
+```
+### output
+```text
+true
+false
+```
+## 一些转换方法
+### test
+```text
+import 'package:flutter_matrix/complex.dart';
+
+main() {
+  Complex complex = Complex.fromList([1.2, 1.2]);
+  print(complex.toList);
+  print(complex.toFloat64x2);
+  print(complex.toPoint);
+}
+```
+### output
+```text
+[1.2, 1.2]
+[1.200000, 1.200000]
+Point(1.2, 1.2)
+```
+[下一篇：可视化处理](visualization.md)
