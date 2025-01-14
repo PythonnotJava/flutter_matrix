@@ -24,4 +24,5 @@ nav:
     - 概率论与数理统计: API/random.md
     - 线性代数: API/linalg.md
     - 复数: API/complex.md
+    - 可视化处理: API/visualization.md
 # mkdocs build
