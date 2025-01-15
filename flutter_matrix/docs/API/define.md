@@ -242,7 +242,8 @@ main() {
 ## String toString
 > String toString({String? format, String color = '#ffd700'})
 > 
-> 重载转字符串方法。format是输出格式，默认使用全局的data_format格式，可以使用color设置打印颜色，color是HEX格式的字符串
+> 重载转字符串方法。format是输出格式，默认使用全局的data_format格式，可以使用color设置打印颜色，color是HEX格式的字符串  
+> 注：默认输出格式由`data_format`控制，可以修改
 
 ### test
 ```text

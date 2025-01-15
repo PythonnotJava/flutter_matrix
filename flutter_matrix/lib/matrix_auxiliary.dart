@@ -216,11 +216,4 @@ mixin MatrixAuxiliary{
       return r < row ~/ 2 ? even[r] + T[r] : even[r - row ~/ 2] - T[r - row ~/ 2];
     });
   }
-
-  /// Split a range.
-  List<Range> _split_range(double start, double end, int counts){
-    assert(start < end && counts >= 2);
-    double interval = (end - start) / counts;
-    return List.generate(counts, (i) => [start + interval * i, start + interval * (i + 1)]);
-  }
 }

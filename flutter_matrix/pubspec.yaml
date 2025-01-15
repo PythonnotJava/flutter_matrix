@@ -6,11 +6,16 @@ description: The matrix class designed for Flutter can also be used in pure Dart
 homepage: https://pythonnotjava.github.io//src/pkg/Flutter_Matrix/site
 repository: https://github.com/PythonnotJava/flutter_matrix
 documentation: https://pythonnotjava.github.io//src/pkg/Flutter_Matrix/site
+issue_tracker: https://github.com/PythonnotJava/flutter_matrix/issues
 
 version: 0.1.1
 
+screenshots:
+  - path: docs/API/src/design.png
+  - path: docs/API/src/toString1.png
+
 environment:
-  sdk: ">=3.0.0"
+  sdk: ">=3.0.0 < 4.0.0"
 
 dependencies:
   collection: '>=1.15.1'
