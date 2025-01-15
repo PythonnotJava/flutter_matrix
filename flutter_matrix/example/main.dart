@@ -1,4 +1,4 @@
-import 'package:flutter_matrix/matrix_type.dart';
+import 'package:flutter_matrix/flutter_matrix.dart';
 
 main() {
   data_format = "%2.1f";
