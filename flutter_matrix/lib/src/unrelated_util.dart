@@ -1,4 +1,7 @@
 import 'dart:math' as math;
+
+import 'package:flutter_matrix/flutter_matrix.dart';
+
 /// A package encapsulates unrelated utilities.
 
 /// Calculation accuracy
@@ -57,7 +60,8 @@ double diffCentral(double x, double Function(double) func) {
 /// Basic mathematical functions not in [dart:math].
 double sinh(double x) => (math.exp(x) - math.exp(-x)) / 2.0;
 double cosh(double x) => (math.exp(x) + math.exp(-x)) / 2.0;
-double tanh(double x) => (math.exp(x) - math.exp(-x)) / (math.exp(x) + math.exp(-x));
+double tanh(double x) =>
+    (math.exp(x) - math.exp(-x)) / (math.exp(x) + math.exp(-x));
 double asinh(double x) => math.log(x + math.sqrt(x * x + 1));
 double acosh(double x) => math.log(x + math.sqrt(x * x - 1));
 double atanh(double x) => 0.5 * math.log((1 + x) / (1 - x));
@@ -71,30 +75,16 @@ double round(double x) => x.roundToDouble();
 double degree(double x) => x * (180.0 / math.pi);
 double radian(double x) => x * (math.pi / 180.0);
 
-/// Standard && normal distribution.
-double StandardNormal(math.Random rd){
-  double u1 = rd.nextDouble();
-  double u2 = rd.nextDouble();
-  return math.sqrt(-2.0 * math.log(u1)) * math.cos(2.0 * math.pi * u2);
-}
-
-double Normal(math.Random rd, double sigma, double mu){
-  double u1 = rd.nextDouble();
-  double u2 = rd.nextDouble();
-  double z = math.sqrt(-2.0 * math.log(u1)) * math.cos(2.0 * math.pi * u2);
-  return z * sigma + mu;
-}
 
 /// Randomly select n data from a list of length m.
 /// m can be passed in selectively.
 /// [back] is true to indicate that it can be put back after each selection.
-List<T> choose<T>({
-  required List<T> list,
-  required int n,
-  int? m,
-  bool back = false,
-  int? seed
-}) {
+List<T> choose<T>(
+    {required List<T> list,
+    required int n,
+    int? m,
+    bool back = false,
+    int? seed}) {
   assert(n > 0);
   assert(m == null || (m > 0 && m <= list.length));
   m ??= list.length;
@@ -111,4 +101,88 @@ List<T> choose<T>({
     result.addAll(indices.take(n).map((i) => list[i]));
   }
   return result;
+}
+
+/// A random generator class.
+/// Note that this class does not perform a legal range check on its parameters.
+@Alert('This class does not perform a legal range check on its parameters.')
+final class RandomGenerator{
+  RandomGenerator._internal();
+  static final RandomGenerator instance = RandomGenerator._internal();
+
+  /// Standard && normal distribution.
+  double StandardNormal(math.Random rd) {
+    double u1 = rd.nextDouble();
+    double u2 = rd.nextDouble();
+    return math.sqrt(-2.0 * math.log(u1)) * math.cos(2.0 * math.pi * u2);
+  }
+
+  double Normal(math.Random rd, double sigma, double mu) {
+    double u1 = rd.nextDouble();
+    double u2 = rd.nextDouble();
+    double z = math.sqrt(-2.0 * math.log(u1)) * math.cos(2.0 * math.pi * u2);
+    return z * sigma + mu;
+  }
+
+  /// Binomial Distribution.
+  int Binomial(math.Random rd, {required int n, required double p}){
+    int successCount = 0;
+    for (int i = 0; i < n; i++) {
+      if (rd.nextDouble() < p) {
+        successCount++;
+      }
+    }
+    return successCount;
+  }
+
+  /// Chi-square distribution.
+  double Chisquare(math.Random rd, {required int df}){
+    double sum = 0.0;
+    for (int i = 0; i < df; i++) {
+      double z = StandardNormal(rd);
+      sum += z * z;
+    }
+    return sum;
+  }
+
+  /// Exponential distribution.
+  double Exponential(math.Random rd, {required double lambda}){
+    double u = rd.nextDouble();
+    return -math.log(u) / lambda;
+  }
+
+  /// F distribution.
+  double F(math.Random rd, {required int d1, required int d2}){
+    return (Chisquare(rd, df: d1) / d1) / (Chisquare(rd, df: d2) / d2);
+  }
+
+  /// Gamma distribution.
+  double Gamma(math.Random rd, {required double k, required double theta}){
+    if (k < 1) {
+      double u = rd.nextDouble();
+      double b = (math.e + k) / math.e;
+      double p = b * u;
+      return Gamma(rd, k: k, theta: theta) * (p - b);
+    } else {
+      double d = k - 1 / 3;
+      double c = 1 / math.sqrt(9 * d);
+      while (true) {
+        double x = StandardNormal(rd) * c;
+        double v = 1 + x * x / 3;
+        if (v <= 0) continue;
+        double u = rd.nextDouble();
+        if (u < 1 - 0.0331 * math.pow(x, 4) || math.log(u) < 0.5 * x * x + d * (1 - v + math.log(v))) {
+          return d * v;
+        }
+      }
+    }
+  }
+
+  /// Beta distribution.
+  double Beta(math.Random rd, {required double a, required double b}){
+    double gamma1 = Gamma(rd, k: a, theta: 1.0);
+    double gamma2 = Gamma(rd, k: b, theta: 1.0);
+    return gamma1 / (gamma1 + gamma2);
+  }
+
 }

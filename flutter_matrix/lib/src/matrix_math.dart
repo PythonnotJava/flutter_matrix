@@ -2,22 +2,21 @@ part of 'matrix_type.dart';
 
 extension MatrixMath on Matrix {
   /// Get the minimum
-  Object min({int dim = -1}){
-    if (dim == 0){
+  Object min({int dim = -1}) {
+    if (dim == 0) {
       return List.generate(shape[0], (r) => self[r].min);
-    }else if (dim == 1){
+    } else if (dim == 1) {
       return List.generate(shape[1], (c) => column_(c).min);
     } else {
       return List.generate(shape[0], (r) => self[r].min).min;
     }
   }
 
-
   /// Get the maximum
-  Object max({int dim = -1}){
-    if (dim == 0){
+  Object max({int dim = -1}) {
+    if (dim == 0) {
       return List.generate(shape[0], (r) => self[r].max);
-    }else if (dim == 1){
+    } else if (dim == 1) {
       return List.generate(shape[1], (c) => column_(c).max);
     } else {
       return List.generate(shape[0], (r) => self[r].max).max;
@@ -25,38 +24,39 @@ extension MatrixMath on Matrix {
   }
 
   /// Get the minimum or maximum's index.
-  Object _argmin_max(bool isMin, {int dim = -1}){
+  Object _argmin_max(bool isMin, {int dim = -1}) {
     var _min_max = isMin ? min(dim: dim) : max(dim: dim);
-    if (dim == 0){
+    if (dim == 0) {
       _min_max as List<double>;
       return List.generate(shape[0], (r) => self[r].indexOf(_min_max[r]));
-    }else if (dim == 1){
+    } else if (dim == 1) {
       _min_max as List<double>;
       return List.generate(shape[1], (c) => column_(c).indexOf(_min_max[c]));
     } else {
       _min_max as double;
       var [row, column] = shape;
-      for (int r = 0;r < row;r++){
+      for (int r = 0; r < row; r++) {
         var v = self[r].indexOf(_min_max);
-        if (v != -1){
+        if (v != -1) {
           return v + column * r;
         }
       }
       return -1; // Never gonna get here!
     }
   }
+
   Object argmin({int dim = -1}) => _argmin_max(true, dim: dim);
   Object argmax({int dim = -1}) => _argmin_max(false, dim: dim);
 
   /// Get the range.
-  Object get_range({int dim = -1}){
-    if (dim == 0){
-      return List.generate(shape[0], (r){
+  Object get_range({int dim = -1}) {
+    if (dim == 0) {
+      return List.generate(shape[0], (r) {
         final row_list = self[r];
         return [row_list.min, row_list.max];
       });
-    }else if (dim == 1){
-      return List.generate(shape[1], (c){
+    } else if (dim == 1) {
+      return List.generate(shape[1], (c) {
         final column_list = column_(c);
         return [column_list.min, column_list.max];
       });
@@ -66,10 +66,10 @@ extension MatrixMath on Matrix {
   }
 
   /// Sum.
-  Object sum({int dim = -1}){
-    if (dim == 0){
+  Object sum({int dim = -1}) {
+    if (dim == 0) {
       return reduce((x, y) => x + y, dim: 0);
-    }else if (dim == 1){
+    } else if (dim == 1) {
       return reduce((x, y) => x + y, dim: 1);
     } else {
       return reduce((x, y) => x + y, dim: -1);
@@ -104,11 +104,11 @@ extension MatrixMath on Matrix {
   Matrix _math_basement_single_realize(int mode) {
     final func = _math_basement_single(mode);
     return Matrix.fromList(
-      self.map((row_list) => row_list.map((e) => func(e)).toList()).toList(),
-      known_row: shape[0],
-      known_column: shape[1]
-    );
+        self.map((row_list) => row_list.map((e) => func(e)).toList()).toList(),
+        known_row: shape[0],
+        known_column: shape[1]);
   }
+
   Matrix get sin => _math_basement_single_realize(0);
   Matrix get cos => _math_basement_single_realize(1);
   Matrix get tan => _math_basement_single_realize(2);
@@ -134,79 +134,87 @@ extension MatrixMath on Matrix {
   Matrix get degree => _math_basement_single_realize(22);
   Matrix get radian => _math_basement_single_realize(23);
 
-  Matrix _math_basement_double_realize(int mode, {required double number, bool reverse = false}){
+  Matrix _math_basement_double_realize(int mode,
+      {required double number, bool reverse = false}) {
     final func = _math_basement_double(mode);
-    return !reverse ? Matrix.fromList(
-        self.map((row_list) => row_list.map((e) => func(e, number)).toList()).toList(),
-        known_row: shape[0],
-        known_column: shape[1]
-    ) : Matrix.fromList(
-        self.map((row_list) => row_list.map((e) => func(number, e)).toList()).toList(),
-        known_row: shape[0],
-        known_column: shape[1]
-    );
+    return !reverse
+        ? Matrix.fromList(
+            self
+                .map(
+                    (row_list) => row_list.map((e) => func(e, number)).toList())
+                .toList(),
+            known_row: shape[0],
+            known_column: shape[1])
+        : Matrix.fromList(
+            self
+                .map(
+                    (row_list) => row_list.map((e) => func(number, e)).toList())
+                .toList(),
+            known_row: shape[0],
+            known_column: shape[1]);
   }
+
   /// Realizes the power of the matrix. When reverse is true, it means that number is the base.
-  Matrix power({required double number, bool reverse = false}) => _math_basement_double_realize(0, number: number, reverse: reverse);
+  Matrix power({required double number, bool reverse = false}) =>
+      _math_basement_double_realize(0, number: number, reverse: reverse);
+
   /// Inverse tangent function, when reverse is true, it means number is the denominator.
-  Matrix atan2({required double number, bool reverse = false}) => _math_basement_double_realize(1, number: number, reverse: reverse);
+  Matrix atan2({required double number, bool reverse = false}) =>
+      _math_basement_double_realize(1, number: number, reverse: reverse);
 
   /// Central Difference Derivative
-  Matrix diff(double Function(double) func){
+  Matrix diff(double Function(double) func) {
     return Matrix.fromList(
-      self.map((row_list) => row_list.map((x) => diffCentral(x, func)).toList()).toList(),
-      known_row: shape[0],
-      known_column: shape[1]
-    );
+        self
+            .map((row_list) =>
+                row_list.map((x) => diffCentral(x, func)).toList())
+            .toList(),
+        known_row: shape[0],
+        known_column: shape[1]);
   }
 
   /// Discrete Fourier Transform.
   /// Treat each row of data as the real and imaginary parts of a [Complex] number.
-  Matrix dft_complex(){
+  Matrix dft_complex() {
     var [row, column] = shape;
-    assert (column == 2);
+    assert(column == 2);
     List<List<double>> data = [];
-    for (int k = 0;k < row;k++){
+    for (int k = 0; k < row; k++) {
       Complex complex = Complex();
-      for (int n = 0;n < row;n++){
+      for (int n = 0; n < row; n++) {
         double angle = -2 * math.pi * k * n / row;
         var [real, imaginary] = self[n];
-        complex = complex + Complex(real: real, imaginary: imaginary) * Complex(real: 0.0, imaginary: angle).exp;
+        complex = complex +
+            Complex(real: real, imaginary: imaginary) *
+                Complex(real: 0.0, imaginary: angle).exp;
       }
       data.add(complex.toList);
     }
-    return Matrix.fromList(
-      data,
-      known_row: row,
-      known_column: 2
-    );
+    return Matrix.fromList(data, known_row: row, known_column: 2);
   }
 
   /// Fast Fourier transform, the number of complex numbers must be a power of 2.
   Matrix fft_complex() {
     var [row, column] = shape;
-    assert ((row & (row - 1) == 0) && row >= 2 && column == 2);
+    assert((row & (row - 1) == 0) && row >= 2 && column == 2);
     return Matrix.fromList(
-      _fft(mt_self: self, mt_shape: shape).map((complex) => complex.toList).toList(),
-      known_row: shape[0],
-      known_column: 2
-    );
+        _fft(mt_self: self, mt_shape: shape)
+            .map((complex) => complex.toList)
+            .toList(),
+        known_row: shape[0],
+        known_column: 2);
   }
 
   /// Convert to Complex-like matrix.
-  Matrix toComplex(){
+  Matrix toComplex() {
     var [row, column] = shape;
     List<List<double>> data = [];
-    for (int r = 0;r < row;r++){
-      for (int c = 0;c < column;c++){
+    for (int r = 0; r < row; r++) {
+      for (int c = 0; c < column; c++) {
         data.add([self[r][c], 0.0]);
       }
     }
-    return Matrix.fromList(
-      data,
-      known_column: 2,
-      known_row: size
-    );
+    return Matrix.fromList(data, known_column: 2, known_row: size);
   }
 
   /// Discrete Fourier Transform.
