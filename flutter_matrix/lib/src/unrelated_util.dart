@@ -103,6 +103,18 @@ List<T> choose<T>(
   return result;
 }
 
+/// Calculate the number of combinations: C(n, k) = n! / (k! * (n-k)!)
+int binomialCoefficient(int n, int k) {
+  if (k > n) return 0;
+  if (k == 0 || k == n) return 1;
+  k = k < (n - k) ? k : (n - k);
+  int c = 1;
+  for (int i = 0; i < k; i++) {
+    c = c * (n - i) ~/ (i + 1);
+  }
+  return c;
+}
+
 /// A random generator class.
 /// Note that this class does not perform a legal range check on its parameters.
 @Alert('This class does not perform a legal range check on its parameters.')
@@ -185,4 +197,52 @@ final class RandomGenerator{
     return gamma1 / (gamma1 + gamma2);
   }
 
+  /// Dirichlet distribution.
+  List<double> Dirichlet(math.Random rd, {required List<double> alpha}) {
+    int dim = alpha.length;
+    List<double> samples = List.filled(dim, 0.0);
+    double sum = 0.0;
+    for (int i = 0; i < dim; i++) {
+      samples[i] = Gamma(rd, k: alpha[i], theta: 1.0);
+      sum += samples[i];
+    }
+    return samples.map((x) => x / sum).toList();
+  }
+
+  /// Geometric distribution.
+  int Geometric(math.Random rd, {required double p}) {
+    int count = 0;
+    while (rd.nextDouble() >= p) {
+      count++;
+    }
+    return count + 1;
+  }
+
+  /// Gumbel distribution.
+  double Gumbel(math.Random rd, {required double loc, required double scale}){
+    double u = rd.nextDouble();
+    return loc - scale * math.log(-math.log(u));
+  }
+
+  /// Hypergeometric distribution.
+  int Hypergeometric(math.Random rd, {required int N, required int K, required int n}) {
+    int successes = 0;
+    int remainingSuccesses = K;
+    int remainingTotal = N;
+    for (int i = 0; i < n; i++) {
+      double p = remainingSuccesses / remainingTotal;
+      if (rd.nextDouble() < p) {
+        successes++;
+        remainingSuccesses--;
+      }
+      remainingTotal--;
+    }
+    return successes;
+  }
+
+  /// Laplace distribution.
+  double Laplace(math.Random rd, {required double mu, required double b}){
+    double u = rd.nextDouble() - 0.5;
+    return mu - b * (u.isNegative ? 1 : -1) * math.log(1 - 2 * u.abs());
+  }
 }

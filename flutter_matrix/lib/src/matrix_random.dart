@@ -302,11 +302,92 @@ extension MatrixRandom on Matrix {
     );
   }
 
+  /// Dirichlet distribution, [alpha] parameter is a floating point sequence of length column and not less than 2.
+  static Matrix dirichlet({
+    required List<double> alpha,
+    required int row,
+    int? seed
+  }){
+    int column = alpha.length;
+    assert(column > 1 && row > 0);
+    var random = math.Random(seed);
+    return Matrix.fromList(
+      List.generate(row, (_) => _randomGenerator.Dirichlet(random, alpha: alpha)),
+      known_column: column,
+      known_row: row
+    );
+  }
 
-  // static Matrix normal(
-  //     {double mu = 0.0,
-  //       double sigma = 1.0,
-  //       required int row,
-  //       required int column,
-  //       int? seed})
+  /// Geometric distribution, where [p] is the probability of success.
+  static Matrix geometric({
+    required double p,
+    required int row,
+    required int column,
+    int? seed
+  }){
+    assert(p > 0 && p <= 1 && row > 0 && column > 0);
+    var random = math.Random(seed);
+    return Matrix.fromList(
+      List.generate(row, (_) =>
+          List.generate(column, (_) => _randomGenerator.Geometric(random, p: p).toDouble())),
+      known_column: column,
+      known_row: row
+    );
+  }
+
+  /// Gumbel distribution,
+  /// where [loc] is the location of the mode of the distribution and [scale] is the scale parameter of the distribution and must be non-negative.
+  static Matrix gumbel({
+    required double loc,
+    required double scale,
+    required int row,
+    required int column,
+    int? seed
+  }){
+    assert(row > 0 && column > 0 && scale > 0);
+    var random = math.Random(seed);
+    return Matrix.fromList(
+      List.generate(row, (_) => List.generate(column, (_) => _randomGenerator.Gumbel(random, loc: loc, scale: scale))),
+      known_column: column,
+      known_row: row
+    );
+  }
+
+  /// Hypergeometric distribution, the parameters [N], [K], and [n] represent the total number of elements,
+  /// the total number of target elements, and the number of samples drawn, respectively,
+  /// and finally the number of target elements in the sample is obtained.
+  static Matrix hypergeometric({
+    required int N,
+    required int K,
+    required int n,
+    required int row,
+    required int column,
+    int? seed
+  }){
+    assert (!(K > N || n > N) && column > 0 && row > 0);
+    var random = math.Random(seed);
+    return Matrix.fromList(
+      List.generate(row, (_) => List.generate(column, (_) => _randomGenerator.Hypergeometric(random, N: N, K: K, n: n).toDouble())),
+      known_column: column,
+      known_row: row
+    );
+  }
+  
+  /// Laplace distribution, also known as double exponential distribution,
+  /// [mu] is the location parameter, and the non-negative [b] is the scale parameter.
+  static Matrix laplace({
+    required double mu,
+    required double b,
+    required int row,
+    required int column,
+    int? seed
+  }){
+    assert(row > 0 && column > 0 && b > 0);
+    var random = math.Random(seed);
+    return Matrix.fromList(
+      List.generate(row, (_) => List.generate(column, (_) => _randomGenerator.Laplace(random, mu: mu, b: b))),
+      known_column: column,
+      known_row: row
+    );
+  }
 }

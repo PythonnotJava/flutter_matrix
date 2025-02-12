@@ -1,7 +1,3 @@
-dirichlet
-geometric
-gumbel
-hypergeometric
 laplace
 logistic
 lognormal
