@@ -354,4 +354,250 @@ main() {
 ]
 ```
 
+## binomial
+> static Matrix binomial({required int n, required double p, required int row, required int column, int? seed})
+> 
+> 二项式分布（伯努利分布），其中n是试验次数，p是成功的概率。
+
+### test
+```text
+import '../lib/flutter_matrix.dart';
+
+main(){
+  data_format = '%2.0f';
+  var mt = MatrixRandom.binomial(n: 10, p: 0.6, row: 3, column: 6);
+  mt.visible();
+}
+```
+### output
+```text
+[
+ [  9   5   6   6   6   7]
+ [  6   7   6   5   5   6]
+ [  5   5   7   4   9   6]
+]
+```
+## chisquare
+> static Matrix chisquare({ required int df, required int row, required int column, int? seed })
+> 
+> 卡方分布，其中正整数df是自由度。
+### test
+```text
+import '../lib/flutter_matrix.dart';
+
+main(){
+  var mt = MatrixRandom.chisquare(df: 3, row: 3, column: 6);
+  mt.visible();
+}
+```
+### output
+```text
+[
+ [5.42309 5.67948 0.43278 9.90406 0.08491 0.75004]
+ [0.69392 1.83211 4.31445 3.21911 9.51412 7.66674]
+ [4.24697 0.43563 1.39504 4.06116 0.95671 3.23452]
+]
+```
+## exponential
+> static Matrix exponential({ required double lambda, required int row, required int column, int? seed })
+> 
+> 指数分布，正实数λ是速率参数。
+### test
+```text
+import '../lib/flutter_matrix.dart';
+
+main(){
+  var mt = MatrixRandom.exponential(lambda: 3, row: 3, column: 7);
+  mt.visible();
+}
+```
+### output
+```text
+[
+ [0.59205 0.30458 0.44661 0.37097 0.68382 0.37191 0.19418]
+ [0.87269 0.48058 0.11004 0.41595 0.09100 0.68939 0.04317]
+ [0.08204 0.16524 1.15535 0.70234 0.04674 0.30218 0.07011]
+]
+```
+## f
+> static Matrix f({ required int d1, required int d2, required int row, required int column, int? seed })
+> 
+> F 分布。其中 d1 和 d2 ] 是两个独立卡方分布的自由度。
+### test
+```text
+import '../lib/flutter_matrix.dart';
+
+main(){
+  data_format = "%2.5f";
+  var mt = MatrixRandom.f(d1: 3, d2: 4, row: 4, column: 6);
+  mt.visible();
+}
+```
+### output
+```text
+[
+ [ 0.92346  0.66244  3.03371  0.18384  0.63915  0.97611]
+ [ 0.91794  0.54395  0.33545  1.28692  0.01852  1.13263]
+ [ 2.17837  0.24876  3.40228  0.11621  0.76633  0.47811]
+ [ 1.02146  4.00121  0.25865  2.29399  2.07985  0.07998]
+]
+```
+## gamma
+> static Matrix gamma({ required double k, required double theta, required int row, required int column, int? seed })
+> 
+> 伽马分布，其中k是形状参数，theta是尺度参数。
+### test
+```text
+import '../lib/flutter_matrix.dart';
+
+main(){
+  data_format = "%2.5f";
+  var mt = MatrixRandom.gamma(k: 2.3, theta: 1.2, row: 2, column: 9);
+  mt.visible();
+}
+```
+### output
+```text
+[
+ [ 1.97898  2.11548  1.97235  2.01070  1.97023  2.15622  1.96931  1.96695  1.97193]
+ [ 1.99453  1.98793  1.98049  1.99853  2.01608  2.06490  1.96879  2.18777  2.01119]
+]
+```
+## beta
+> static Matrix beta({ required double a, required double b, required int row, required int column, int? seed })
+> 
+> 贝塔分布，参数a和b分别是分子和分母的形状参数。
+### test
+```text
+import '../lib/flutter_matrix.dart';
+
+main(){
+  data_format = "%2.5f";
+  var mt = MatrixRandom.beta(a: 1.4, b: 1.5, row: 3, column: 6);
+  mt.visible();
+}
+```
+### output
+```text
+[
+ [ 0.49674  0.47748  0.49000  0.51771  0.48358  0.53437]
+ [ 0.47219  0.48763  0.47852  0.48319  0.45656  0.46501]
+ [ 0.47745  0.47656  0.47766  0.48641  0.46924  0.47451]
+]
+```
+## dirichlet
+> static Matrix dirichlet({ required List<double> alpha, required int row, int? seed })
+> 
+> 狄利克雷分布，alpha参数是长度为列且不小于2的浮点序列，alpha中的每个数都必须大于0。
+### test
+```text
+import '../lib/flutter_matrix.dart';
+
+main(){
+  data_format = "%2.5f";
+  var mt = MatrixRandom.dirichlet(alpha: [2, 3, 4, 5, 2, 1, 1, 9], row: 5);
+  mt.visible();
+}
+```
+### output
+```
+[
+ [ 0.06777  0.10927  0.14974  0.19033  0.06799  0.02707  0.03108  0.35675]
+ [ 0.06782  0.10716  0.15432  0.18717  0.07829  0.02750  0.02718  0.35056]
+ [ 0.07176  0.11077  0.14973  0.19066  0.06803  0.02759  0.02731  0.35416]
+ [ 0.06923  0.10830  0.15226  0.19454  0.06776  0.02710  0.02705  0.35375]
+ [ 0.06978  0.10861  0.14912  0.19070  0.06796  0.03449  0.02751  0.35182]
+]
+``` 
+## geometric
+> static Matrix geometric({ required double p, required int row, required int column, int? seed })
+> 
+> 几何分布，其中p是成功的概率。
+### test
+```text
+import '../lib/flutter_matrix.dart';
+
+main(){
+  data_format = "%2.0f";
+  var mt = MatrixRandom.geometric(p: 0.1, row: 4, column: 7);
+  mt.visible();
+}
+```
+### output
+```text
+[
+ [  1   3   1   1  33   2  15]
+ [  4   3   2   6   1  12  18]
+ [ 24   2   6   9  33   7   2]
+ [  6   7  11   5  16   4  10]
+]
+```
+## gumbel
+> static Matrix gumbel({ required double loc, required double scale, required int row, required int column, int? seed })
+> 
+> 耿贝尔分布，其中loc是分布的众数的位置，scale是分布的尺度参数，并且必须为非负数。
+### test
+```text
+import '../lib/flutter_matrix.dart';
+
+main(){
+  data_format = "%2.5f";
+  var mt = MatrixRandom.gumbel(loc: 0, scale: 1, row: 2, column: 9);
+  mt.visible();
+}
+```
+### output
+```text
+[
+ [-0.22699 -0.70834  2.46328 -0.27267  1.13736 -0.50648  0.10226  1.58143  3.05194]
+ [ 1.54331 -0.05892  0.14372  3.15481  0.44702  0.25944 -0.13567  0.74313  0.23801]
+]
+```
+## hypergeometric
+> static Matrix hypergeometric({ required int N, required int K, required int n, required int row, required int column, int? seed })
+> 
+> 超几何分布，参数N、K、n分别表示元素总数、目标元素总数、抽取的样本数，最终得到样本中目标元素的数量。
+### test
+```text
+import '../lib/flutter_matrix.dart';
+
+main(){
+  data_format = "%2.0f";
+  var mt = MatrixRandom.hypergeometric(N: 100, K: 10, n: 50, row: 6, column: 6);
+  mt.visible();
+}
+```
+### output
+```text
+[
+ [  2   8   6   6   5   3]
+ [  4   4   2   7   3   5]
+ [  6   2   2   7   6   3]
+ [  3   5   5   7   6   7]
+ [  7   8   6   7   5   5]
+ [  5   4   7   8   4   3]
+]
+```
+## laplace
+> static Matrix laplace({ required double mu, required double b, required int row, required int column, int? seed })
+> 
+> 拉普拉斯分布，又称双指数分布，mu是位置参数，非负数b是尺度参数。
+### test
+```text
+import '../lib/flutter_matrix.dart';
+
+main(){
+  data_format = "%2.5f";
+  var mt = MatrixRandom.laplace(mu: 1, b: 2, row: 2, column: 8);
+  mt.visible();
+}
+```
+### output
+```text
+[
+ [ 5.15415  2.07610 -1.37176 -2.41060 -0.99129  3.98637  0.31916  0.24522]
+ [ 3.38619  4.86480 -1.78386  0.54009 -4.79726  4.24814  2.09560  2.00870]
+]
+```
+
 [下一篇：线性代数](linalg.md)

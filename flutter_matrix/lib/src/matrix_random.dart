@@ -303,13 +303,14 @@ extension MatrixRandom on Matrix {
   }
 
   /// Dirichlet distribution, [alpha] parameter is a floating point sequence of length column and not less than 2.
+  /// Every number in alpha must be greater than 0.
   static Matrix dirichlet({
     required List<double> alpha,
     required int row,
     int? seed
   }){
     int column = alpha.length;
-    assert(column > 1 && row > 0);
+    assert(column > 1 && row > 0 && !alpha.contains(0.0));
     var random = math.Random(seed);
     return Matrix.fromList(
       List.generate(row, (_) => _randomGenerator.Dirichlet(random, alpha: alpha)),
