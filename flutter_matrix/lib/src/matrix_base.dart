@@ -400,4 +400,37 @@ extension MatrixBase on Matrix {
       shape[1] += 1;
     }
   }
+
+  // Copy to a new shape (row expansion × column expansion)
+  Matrix _broadcastTo(int rows, int cols) {
+    List<List<double>> newSelf = List.generate(rows, (i) {
+      List<double> row = self[i % self.length];
+      return List.generate(cols, (j) => row[j % row.length]);
+    });
+    return Matrix(newSelf);
+  }
+
+  /// Broadcast multiple matrices, starting from the last dimension,
+  /// each dimension is either equal or one of them is 1, otherwise the broadcast fails.
+  static List<Matrix> broadcast(List<Matrix> mts){
+    assert(mts.length > 1);
+    int maxRows = 0;
+    int maxCols = 0;
+    for (var m in mts) {
+      maxRows = maxRows > m.shape[0] ? maxRows : m.shape[0];
+      maxCols = maxCols > m.shape[1] ? maxCols : m.shape[1];
+    }
+    List<Matrix> result = [];
+    for (var m in mts) {
+      int rows = m.shape[0];
+      int cols = m.shape[1];
+      bool rowsOk = (rows == maxRows) || (rows == 1);
+      bool colsOk = (cols == maxCols) || (cols == 1);
+      if (!rowsOk || !colsOk) {
+        throw Exception('Matrix shape ${m.shape} cannot be broadcast to [$maxRows, $maxCols]');
+      }
+      result.add(m._broadcastTo(maxRows, maxCols));
+    }
+    return result;
+  }
 }

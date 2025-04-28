@@ -27,7 +27,8 @@ extension MatrixRandom on Matrix {
       });
     } else if (dim == 1) {
       return List.generate(column, (r) {
-        final list = column_(r)..sort();
+        final list = column_(r)
+          ..sort();
         return list[row ~/ 2];
       });
     } else {
@@ -105,37 +106,34 @@ extension MatrixRandom on Matrix {
   }
 
   /// Uniform distribution.The default is standard uniform distribution.
-  static Matrix uniform(
-      {double lb = 0.0,
-      double ub = 1.0,
-      required int row,
-      required int column,
-      int? seed}) {
+  static Matrix uniform({double lb = 0.0,
+    double ub = 1.0,
+    required int row,
+    required int column,
+    int? seed}) {
     assert(lb < ub && row > 0 && column > 0);
     final random = math.Random(seed);
     double gap = ub - lb;
     return Matrix.fromList(
-        List.generate(
-            row,
-            (_) => List<double>.generate(
-                column, (_) => lb + gap * random.nextDouble())),
+        List.generate(row, (_) =>
+        List<double>.generate(column, (_) => lb + gap * random.nextDouble())),
         known_column: column,
         known_row: row);
   }
 
   /// Normal distribution, the default is standard normal distribution.
-  static Matrix normal(
-      {double mu = 0.0,
-      double sigma = 1.0,
-      required int row,
-      required int column,
-      int? seed}) {
+  static Matrix normal({double mu = 0.0,
+    double sigma = 1.0,
+    required int row,
+    required int column,
+    int? seed}) {
     assert(sigma >= 0 && row > 0 && column > 0 && row > 0 && column > 0);
     final random = math.Random(seed);
     return Matrix.fromList(
         List.generate(
             row,
-            (_) => List<double>.generate(
+                (_) =>
+            List<double>.generate(
                 column, (_) => _randomGenerator.Normal(random, sigma, mu))),
         known_column: column,
         known_row: row);
@@ -206,14 +204,15 @@ extension MatrixRandom on Matrix {
     required int row,
     required int column,
     int? seed
-  }){
+  }) {
     assert(n > 0 && p >= 0 && p <= 1 && row > 0 && column > 0);
     var random = math.Random(seed);
     return Matrix.fromList(
-      List.generate(row, (_) =>
-          List.generate(column, (_) => _randomGenerator.Binomial(random, n: n, p: p).toDouble())),
-      known_row: row,
-      known_column: column
+        List.generate(row, (_) =>
+            List.generate(column, (_) =>
+                _randomGenerator.Binomial(random, n: n, p: p).toDouble())),
+        known_row: row,
+        known_column: column
     );
   }
 
@@ -223,11 +222,13 @@ extension MatrixRandom on Matrix {
     required int row,
     required int column,
     int? seed
-  }){
+  }) {
     assert (df > 0 && row > 0 && column > 0);
     var random = math.Random(seed);
     return Matrix.fromList(
-        List.generate(row, (_) => List.generate(column, (_) => _randomGenerator.Chisquare(random, df: df))),
+        List.generate(row, (_) =>
+            List.generate(
+                column, (_) => _randomGenerator.Chisquare(random, df: df))),
         known_row: row,
         known_column: column
     );
@@ -239,13 +240,15 @@ extension MatrixRandom on Matrix {
     required int row,
     required int column,
     int? seed
-  }){
+  }) {
     assert(lambda > 0 && row > 0 && column > 0);
     var random = math.Random(seed);
     return Matrix.fromList(
-      List.generate(row, (_) => List.generate(column, (_) => _randomGenerator.Exponential(random, lambda: lambda))),
-      known_row: row,
-      known_column: column
+        List.generate(row, (_) =>
+            List.generate(column, (_) =>
+                _randomGenerator.Exponential(random, lambda: lambda))),
+        known_row: row,
+        known_column: column
     );
   }
 
@@ -257,13 +260,15 @@ extension MatrixRandom on Matrix {
     required int row,
     required int column,
     int? seed
-  }){
+  }) {
     assert(row > 0 && column > 0 && d1 > 0 && d2 > 0);
     var random = math.Random(seed);
     return Matrix.fromList(
-      List.generate(row, (_) => List.generate(column, (_) => _randomGenerator.F(random, d1: d1, d2: d2))),
-      known_row: row,
-      known_column: column
+        List.generate(row, (_) =>
+            List.generate(
+                column, (_) => _randomGenerator.F(random, d1: d1, d2: d2))),
+        known_row: row,
+        known_column: column
     );
   }
 
@@ -275,16 +280,18 @@ extension MatrixRandom on Matrix {
     required int row,
     required int column,
     int? seed
-  }){
+  }) {
     assert(k > 0 && theta > 0 && row > 0 && column > 0);
     var random = math.Random(seed);
     return Matrix.fromList(
-      List.generate(row, (_) => List.generate(column, (_) => _randomGenerator.Gamma(random, k: k, theta: theta))),
-      known_row: row,
-      known_column: column
+        List.generate(row, (_) =>
+            List.generate(column, (_) =>
+                _randomGenerator.Gamma(random, k: k, theta: theta))),
+        known_row: row,
+        known_column: column
     );
   }
-  
+
   /// Beta distribution, parameters [a] and [b] are the shape parameters of the numerator and denominator respectively.
   static Matrix beta({
     required double a,
@@ -292,13 +299,22 @@ extension MatrixRandom on Matrix {
     required int row,
     required int column,
     int? seed
-  }){
+  }) {
     assert(a > 0 && b > 0 && row > 0 && column > 0);
+    double Function(math.Random, {required double a0, required double b0}) _f;
+    if (a == a.toInt() && b == b.toInt()) {
+      _f = _randomGenerator.Beta_by_Gamma2;
+    } else if (math.min(a, b) > 1) {
+      _f = _randomGenerator.Beta_BB;
+    } else {
+      _f = _randomGenerator.Beta_BC;
+    }
     var random = math.Random(seed);
     return Matrix.fromList(
-      List.generate(row, (_) => List.generate(column, (_) => _randomGenerator.Beta(random, a: a, b: b))),
-      known_row: row,
-      known_column: column
+        List.generate(
+            row, (_) => List.generate(column, (_) => _f(random, a0: a, b0: b))),
+        known_row: row,
+        known_column: column
     );
   }
 
@@ -308,14 +324,15 @@ extension MatrixRandom on Matrix {
     required List<double> alpha,
     required int row,
     int? seed
-  }){
+  }) {
     int column = alpha.length;
     assert(column > 1 && row > 0 && !alpha.contains(0.0));
     var random = math.Random(seed);
     return Matrix.fromList(
-      List.generate(row, (_) => _randomGenerator.Dirichlet(random, alpha: alpha)),
-      known_column: column,
-      known_row: row
+        List.generate(
+            row, (_) => _randomGenerator.Dirichlet(random, alpha: alpha)),
+        known_column: column,
+        known_row: row
     );
   }
 
@@ -325,32 +342,36 @@ extension MatrixRandom on Matrix {
     required int row,
     required int column,
     int? seed
-  }){
+  }) {
     assert(p > 0 && p <= 1 && row > 0 && column > 0);
     var random = math.Random(seed);
     return Matrix.fromList(
-      List.generate(row, (_) =>
-          List.generate(column, (_) => _randomGenerator.Geometric(random, p: p).toDouble())),
-      known_column: column,
-      known_row: row
+        List.generate(row, (_) =>
+            List.generate(column, (_) =>
+                _randomGenerator.Geometric(random, p: p).toDouble())),
+        known_column: column,
+        known_row: row
     );
   }
 
   /// Gumbel distribution,
-  /// where [loc] is the location of the mode of the distribution and [scale] is the scale parameter of the distribution and must be non-negative.
+  /// where [loc] is the location of the mode of the distribution and
+  /// [scale] is the scale parameter of the distribution and must be non-negative.
   static Matrix gumbel({
     required double loc,
     required double scale,
     required int row,
     required int column,
     int? seed
-  }){
+  }) {
     assert(row > 0 && column > 0 && scale > 0);
     var random = math.Random(seed);
     return Matrix.fromList(
-      List.generate(row, (_) => List.generate(column, (_) => _randomGenerator.Gumbel(random, loc: loc, scale: scale))),
-      known_column: column,
-      known_row: row
+        List.generate(row, (_) =>
+            List.generate(column, (_) =>
+                _randomGenerator.Gumbel(random, loc: loc, scale: scale))),
+        known_column: column,
+        known_row: row
     );
   }
 
@@ -364,16 +385,20 @@ extension MatrixRandom on Matrix {
     required int row,
     required int column,
     int? seed
-  }){
-    assert (!(K > N || n > N) && column > 0 && row > 0);
+  }) {
+    assert (K >= 0 && K <= N && n >= 0 && n <= N && column > 0 && row > 0);
     var random = math.Random(seed);
     return Matrix.fromList(
-      List.generate(row, (_) => List.generate(column, (_) => _randomGenerator.Hypergeometric(random, N: N, K: K, n: n).toDouble())),
-      known_column: column,
-      known_row: row
+        List.generate(row, (_) =>
+            List.generate(column, (_) =>
+                _randomGenerator
+                    .Hypergeometric(random, N: N, K: K, n: n)
+                    .toDouble())),
+        known_column: column,
+        known_row: row
     );
   }
-  
+
   /// Laplace distribution, also known as double exponential distribution,
   /// [mu] is the location parameter, and the non-negative [b] is the scale parameter.
   static Matrix laplace({
@@ -382,13 +407,250 @@ extension MatrixRandom on Matrix {
     required int row,
     required int column,
     int? seed
-  }){
+  }) {
     assert(row > 0 && column > 0 && b > 0);
     var random = math.Random(seed);
     return Matrix.fromList(
-      List.generate(row, (_) => List.generate(column, (_) => _randomGenerator.Laplace(random, mu: mu, b: b))),
-      known_column: column,
-      known_row: row
+        List.generate(row, (_) =>
+            List.generate(
+                column, (_) => _randomGenerator.Laplace(random, mu: mu, b: b))),
+        known_column: column,
+        known_row: row
     );
   }
+
+  /// Logistic distribution,
+  /// where [mu] and [s] are the location and scale parameters respectively，and [s] is greater than 0
+  static Matrix logistic({
+    required double mu,
+    required double s,
+    required int row,
+    required int column,
+    int? seed
+  }) {
+    assert(row > 0 && column > 0 && s > 0);
+    var random = math.Random(seed);
+    return Matrix.fromList(
+        List.generate((row), (_) =>
+            List.generate(column, (_) =>
+                _randomGenerator.Logistic(random, mu: mu, s: s))),
+        known_row: row,
+        known_column: column
+    );
+  }
+
+  /// Lognormal distribution,
+  /// where [mu] and [sigma] are the location and scale parameters respectively, and [sigma] is greater than 0
+  static Matrix lognormal({
+    required double mu,
+    required double sigma,
+    required int row,
+    required int column,
+    int? seed
+  }) {
+    assert(row > 0 && column > 0 && sigma > 0);
+    var random = math.Random(seed);
+    return Matrix.fromList(
+        List.generate((row), (_) =>
+            List.generate(column, (_) =>
+                _randomGenerator.Lognormal(random, mu: mu, sigma: sigma))),
+        known_row: row,
+        known_column: column
+    );
+  }
+
+  /// Multinomial distribution,
+  /// where [n] is the number of trials and [p] is a list of probabilities that sum to 1.
+  static Matrix multinomial({
+    required int n,
+    required List<double> p,
+    required int row,
+    int? seed
+  }) {
+    int len = p.length;
+    assert(len >= 1 && p.sum == 1 && n > 0 && row > 0);
+    var random = math.Random(seed);
+    return Matrix.fromList(
+        List.generate((row), (_) =>
+            _randomGenerator.Multinomial(random, n: n, p: p).map((e) =>
+                e.toDouble()).toList()),
+        known_row: row,
+        known_column: len
+    );
+  }
+
+  /// Poisson distribution, parameter [lambda] represents the mean.
+  static Matrix poisson({
+    required double lambda,
+    required int row,
+    required int column,
+    int? seed
+  }) {
+    assert(lambda > 0 && row > 0 && column > 0);
+    var random = math.Random(seed);
+    return Matrix.fromList(
+        List.generate(row, (_) =>
+            List.generate(column, (_) =>
+                _randomGenerator.Poisson(random, lambda: lambda).toDouble())),
+        known_row: row,
+        known_column: column
+    );
+  }
+
+  /// Cauchy distribution, parameter [x0] is the center location, positive [gamma] indicates the scale.
+  static Matrix cauchy({
+    required double x0,
+    required double gamma,
+    required int row,
+    required int column,
+    int? seed
+  }) {
+    assert(row > 0 && column > 0 && gamma > 0);
+    var random = math.Random(seed);
+    return Matrix.fromList(
+        List.generate(row, (_) =>
+            List.generate(column, (_) =>
+                _randomGenerator.Cauchy(random, x0: x0, gamma: gamma))),
+        known_row: row,
+        known_column: column
+    );
+  }
+
+  /// Pareto distribution, positive [xm] is the scale parameter, positive [alpha] is the shape parameter.
+  static Matrix pareto({
+    required double xm,
+    required double alpha,
+    required int row,
+    required int column,
+    int? seed
+  }) {
+    assert(row > 0 && column > 0 && alpha > 0 && xm > 0);
+    double ia = 1.0 / alpha;
+    var random = math.Random(seed);
+    return Matrix.fromList(
+        List.generate(row, (_) =>
+            List.generate(column, (_) =>
+                _randomGenerator.Pareto(random, xm: xm, ia: ia))),
+        known_row: row,
+        known_column: column
+    );
+  }
+
+  /// Rayleigh distribution, positive sigma is the scale parameter.
+  static Matrix rayleigh({
+    required double sigma,
+    required int row,
+    required int column,
+    int? seed
+  }) {
+    assert(row > 0 && column > 0 && sigma > 0);
+    var random = math.Random(seed);
+    return Matrix.fromList(
+        List.generate(row, (_) =>
+            List.generate(column, (_) =>
+                _randomGenerator.Rayleigh(random, sigma: sigma))),
+        known_row: row,
+        known_column: column
+    );
+  }
+
+  /// Triangular distribution, with lower limit [a], upper limit [b], and mode [c].
+  static Matrix triangular({
+    required double a,
+    required double b,
+    required double c,
+    required int row,
+    required int column,
+    int? seed
+  }) {
+    assert(a <= c && c <= b && a < b && row > 0 && column > 0);
+    var random = math.Random(seed);
+    return Matrix.fromList(
+        List.generate(row, (_) =>
+            List.generate(column, (_) =>
+                _randomGenerator.Triangular(random, a: a, b: b, c: c))),
+        known_row: row,
+        known_column: column
+    );
+  }
+
+  /// Inverse Gaussian distribution (also called Wald distribution),
+  /// with positive mean [mu] and shape parameter [lambda].
+  static Matrix wald({
+    required double mu,
+    required double lambda,
+    required int row,
+    required int column,
+    int? seed
+  }){
+    assert(mu > 0 && lambda > 0 && row > 0 && column > 0);
+    var random = math.Random(seed);
+    return Matrix.fromList(
+        List.generate(row, (_) =>
+            List.generate(column, (_) =>
+                _randomGenerator.Wald(random, mu: mu, lambda: lambda))),
+        known_row: row,
+        known_column: column
+    );
+  }
+
+  /// Weibull distribution, scale parameter [lambda] and shape parameter [k] are both positive.
+  static Matrix weibull({
+    required double k,
+    required double lambda,
+    required int row,
+    required int column,
+    int? seed
+  }){
+    assert(k > 0 && lambda > 0 && row > 0 && column > 0);
+    var random = math.Random(seed);
+    return Matrix.fromList(
+        List.generate(row, (_) =>
+            List.generate(column, (_) =>
+                _randomGenerator.Weibull(random, k: k, lambda: lambda))),
+        known_row: row,
+        known_column: column
+    );
+  }
+
+  /// Von Mises distribution,
+  /// parameters [mu] and [k] represent location and concentration respectively, [k] > 0.
+  static Matrix vonmises({
+    required double k,
+    required double mu,
+    required int row,
+    required int column,
+    int? seed
+  }){
+    assert(row > 0 && column > 0 && k > 0);
+    var random = math.Random(seed);
+    return Matrix.fromList(
+        List.generate(row, (_) =>
+            List.generate(column, (_) =>
+                _randomGenerator.Vonmises(random, k: k, mu: mu))),
+        known_row: row,
+        known_column: column
+    );
+  }
+
+  /// Student's t distribution, 
+  /// the positive integer [v] represents the degrees of freedom, and [mu] is the noncentrality parameter.
+  static Matrix t({
+    required int v,
+    required double mu,
+    required int row,
+    required int column,
+    int? seed
+  }){
+    assert(row > 0 && column > 0 && v > 0);
+    var random = math.Random(seed);
+    return Matrix.fromList(
+        List.generate(row, (_) =>
+            List.generate(column, (_) =>
+                _randomGenerator.Student_t(random, v: v, mu: mu))),
+        known_row: row,
+        known_column: column
+    );
+  }
+
 }

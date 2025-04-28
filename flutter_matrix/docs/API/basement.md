@@ -654,4 +654,46 @@ main() {
 ]
 ```
 
+## broadcast
+> static List<Matrix> broadcast(List<Matrix> mts)
+> 
+> 对矩阵列表（长度至少为2）进行广播，多个广播也是从最后一个维度开始，每个维度要么相等，要么其中一个是 1，否则广播失败。
+### test
+```text
+import '../lib/flutter_matrix.dart';
+
+main(){
+  data_format = "%2.0f";
+  var mt1 = Matrix.fromList([
+    [1, 4, 6]
+  ]);
+  var mt2 = Matrix.fromList([
+    [9],
+    [8]
+  ]);
+  var mt3 = Matrix.fromList([
+    [7],
+    [5]
+  ]);
+  var [mt4, mt5, mt6] = MatrixBase.broadcast([mt1, mt2, mt3]);
+  mt4.visible();
+  mt5.visible();
+  mt6.visible();
+}
+```
+### output
+```text
+[
+ [  1   4   6]
+ [  1   4   6]
+]
+[
+ [  9   9   9]
+ [  8   8   8]
+]
+[
+ [  7   7   7]
+ [  5   5   5]
+]
+```
 [下一篇：辅助](auxiliary.md)

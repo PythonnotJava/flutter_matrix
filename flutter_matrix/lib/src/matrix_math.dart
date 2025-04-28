@@ -239,4 +239,11 @@ extension MatrixMath on Matrix {
     }
     return result;
   }
+
+  /// Symbolic function, defined in: https://en.wikipedia.org/wiki/Sign_function
+  Matrix get sgn => Matrix.fromList(
+    self.map((row) => row.map((c) => c.sign).toList()).toList(),
+    known_row: shape[0],
+    known_column: shape[1]
+  );
 }
