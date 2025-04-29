@@ -1,5 +1,6 @@
 .idea/
-flutter_matrix/docs/API/check.md
+check.txt
 record.txt
+future_plan.md
 flutter_matrix/example/demo.dart
 flutter_matrix/example/test.dart
