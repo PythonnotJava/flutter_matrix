@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:flutter_matrix/flutter_matrix.dart';
+import 'package:flutter_matrix/flutter_matrix.dart' show Alert;
 
 /// A package encapsulates unrelated utilities.
 
