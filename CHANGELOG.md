@@ -1,3 +1,11 @@
+# [0.1.3] -2025-04-30
+
+<p style="text-indent: 2em;">
+Optimized the implementation of some functions and added some practical functions.
+</p>
+
+--- 
+
 # [0.1.2] -2025-01-15
 
 <p style="text-indent: 2em;">
