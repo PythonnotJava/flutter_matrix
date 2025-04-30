@@ -25,4 +25,5 @@ nav:
     - 线性代数: API/linalg.md
     - 复数: API/complex.md
     - 可视化处理: API/visualization.md
+    - 机器学习工具测试: API/ml.md
 # mkdocs build
