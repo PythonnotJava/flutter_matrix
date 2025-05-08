@@ -1,20 +1,12 @@
 import '../lib/flutter_matrix.dart';
 
 main(){
-  data_format = "%2.0f";
-  var mt1 = Matrix.fromList([
-    [1, 4, 6]
+  var mt = Matrix.fromList([
+    [1.2, 1.3, 4.2, 2.2, 1.4],
+    [0, 0.3, 2.3, 1.3, 1.7],
+    [1.9, 1.83, 1.2, 2, 2.1]
   ]);
-  var mt2 = Matrix.fromList([
-    [9],
-    [8]
-  ]);
-  var mt3 = Matrix.fromList([
-    [7],
-    [5]
-  ]);
-  var [mt4, mt5, mt6] = MatrixBase.broadcast([mt1, mt2, mt3]);
-  mt4.visible();
-  mt5.visible();
-  mt6.visible();
+  print(mt.MSE(other: Matrix.fill(number: 1, row: mt.shape[0], column: mt.shape[1]), dim: 0));
+  print(mt.MSE(other: Matrix.fill(number: 1, row: mt.shape[0], column: mt.shape[1]), dim: 1));
+  print(mt.MSE(other: Matrix.fill(number: 1, row: mt.shape[0], column: mt.shape[1]), dim: 2));
 }

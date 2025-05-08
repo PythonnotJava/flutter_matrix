@@ -3,10 +3,11 @@ part of 'matrix_type.dart';
 /// Simple implementation of some tools for machine learning.
 extension MatrixML on Matrix {
   /// Softmax function.
-  Matrix Softmax({int dim  =-1}){
+  Matrix Softmax({int dim = -1}){
     var [row, column] = shape;
-    List<List<double>> ls = [];
+    late List<List<double>> ls;
     if (dim == 0){
+      ls = [];
       self.forEach((list){
         List<double> inner = [];
         double sums = 0;
@@ -18,10 +19,11 @@ extension MatrixML on Matrix {
         ls.add(inner.map((e) => e / sums).toList());
       });
     }else if (dim == 1){
-      for (int c = 0;c < column;c++){
+      ls = List.generate(row, (_) => List.filled(column, 0.0, growable: true));
+      for (int c = 0; c < column; c++) {
         double sums = 0;
         List<double> inner = [];
-        for (int r = 0;r < row;r++){
+        for (int r = 0; r < row; r++) {
           double v = math.exp(self[r][c]);
           inner.add(v);
           sums += v;
@@ -31,6 +33,7 @@ extension MatrixML on Matrix {
         }
       }
     }else{
+      ls = [];
       double sums = 0, v;
       self.forEach((list){
         List<double> inner = [];
@@ -107,8 +110,20 @@ extension MatrixML on Matrix {
     var [row, column] = shape;
     return Matrix.fromList(
       List.generate(row, (r) => List.generate(column, (c){
-        double v = -self[r][c];
+        double v = self[r][c];
         return v / (1.0 + v.abs());
+      })),
+      known_row: row,
+      known_column: column
+    );
+  }
+  
+  /// Softplus function.
+  Matrix Softplus(){
+    var [row, column] = shape;
+    return Matrix.fromList(
+      List.generate(row, (r) => List.generate(column, (c){
+        return math.log(1 + math.exp(self[r][c]));
       })),
       known_row: row,
       known_column: column

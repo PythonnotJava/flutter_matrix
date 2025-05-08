@@ -10,11 +10,19 @@
 ## 💡What's the Flutter Matrix?
 
 <p style="text-indent: 2em">
-The matrix class designed for Flutter can also be used in pure Dart, 
-and is also a full-platform alternative to the Matply library. 
-It supports basic matrix operations, linear algebra, probability
-theory and mathematical statistics, geometric simulation, central difference, etc.
+The matrix class designed for Flutter supports any platform 
+because it is implemented in pure Dart. It supports basic matrix operations,
+linear algebra, probability theory and mathematical statistics, 
+geometric simulation, center difference, and more.
 </p>
+
+<p style="text-indent: 2em">
+Pub address : 
+<a href="https://pub.dev/packages/flutter_matrix" target="_blank">
+    https://pub.dev/packages/flutter_matrix
+</a>
+</p>
+
 
 ## 📄Need a local document?
 <p style="text-indent: 2em">
