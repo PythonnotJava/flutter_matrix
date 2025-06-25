@@ -11,7 +11,7 @@ extension MatrixRandom on Matrix {
       return List.generate(row, (r) => list[r] / column);
     } else if (dim == 1) {
       final list = sum(dim: 1) as List<double>;
-      return List.generate(column, (c) => list[c] / column);
+      return List.generate(column, (c) => list[c] / row);
     } else {
       return (sum(dim: -1) as double) / size;
     }

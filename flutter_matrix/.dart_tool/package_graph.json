@@ -1,0 +1,21 @@
+{
+  "roots": [
+    "flutter_matrix"
+  ],
+  "packages": [
+    {
+      "name": "flutter_matrix",
+      "version": "0.1.4",
+      "dependencies": [
+        "collection"
+      ],
+      "devDependencies": []
+    },
+    {
+      "name": "collection",
+      "version": "1.19.1",
+      "dependencies": []
+    }
+  ],
+  "configVersion": 1
+}

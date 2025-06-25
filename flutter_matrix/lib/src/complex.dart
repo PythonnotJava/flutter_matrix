@@ -72,7 +72,8 @@ class Complex extends Object {
 
   Complex operator /(Object other) {
     if (other is num) {
-      return Complex(real: real * other, imaginary: imaginary * other);
+      final d = other.toDouble();
+      return Complex(real: real / d, imaginary: imaginary / d);
     } else if (other is Complex) {
       double com = other.imaginary * other.imaginary + other.real * other.real;
       return Complex(
@@ -81,7 +82,7 @@ class Complex extends Object {
     } else {
       throw UnsupportedError("Unsupported Type : ${other.runtimeType}");
     }
-  }
+}
 
   Complex operator *(Object other) {
     if (other is num) {

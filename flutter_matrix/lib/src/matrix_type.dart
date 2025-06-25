@@ -20,17 +20,47 @@ part 'matrix_ml.dart';
 double tolerance_round = 1e-10;
 String data_format = '%0.5f';
 
-/// Matrix is matrix class.
-/// - It uses [List] to store core data internally.
-/// - When constructed by default, it does not consider whether it is empty or not.
-/// - If a shape is passed in, it will be based on the passed in shape.
-/// - To increase flexibility, Lists in a [Matrix] are all *growable* by default when they are created.
-/// The implementation of Matrix follows the simple approach.
-/// ```
-/// For example, to find a minimum value for each column, I will not use better measures such as bubble
-/// algorithm for each column element one by one, but get the list corresponding to the current column and
-/// then use the min method of the list. Because I have already implemented the method of getting the list
-/// corresponding to the current column, I only consider the logic and abandon some performance.
+/// The [Matrix] class represents a two-dimensional matrix.
+///
+/// - Internally, it stores data using a [List<List<double>>].
+/// - When constructed, it does not validate whether the matrix is empty by default.
+/// - If a shape is provided, it uses that shape to structure the matrix.
+/// - For flexibility, all [List]s in a [Matrix] are *growable* by default.
+///
+/// The implementation focuses on simplicity rather than performance optimization.
+///
+/// For example, to find the minimum value in each column, rather than using
+/// a manual sorting algorithm like bubble sort, this class retrieves the column as a list
+/// and uses the built-in [List] API to find the minimum value. This prioritizes logical clarity
+/// over performance optimization.
+///
+/// *Since version 0.1.4*
+///
+/// When two [Matrix] instances are structurally equal (i.e., identical data and shape),
+/// their [hashCode] values will also be equal. This complies with Dart's contract that
+/// equal objects must have equal hash codes:
+/// https://api.dart.dev/dart-core/Object/hashCode.html.
+///
+/// As a result, if two distinct [Matrix] instances with identical contents are used as keys
+/// in a [Map], the latter will overwrite the former.
+///
+/// Example:
+/// ```dart
+/// import '../lib/flutter_matrix.dart';
+///
+/// void main() {
+///   var mt1 = Matrix.E(n: 4);
+///   var mt2 = Matrix.E(n: 4);
+///
+///   var mp = {
+///     mt1: 23,
+///     mt2: 345,
+///   };
+///
+///   print(mt1.hashCode);  // e.g. 1286719698
+///   print(mt2.hashCode);  // same as mt1
+///   print(mp[mt1]);       // 345
+/// }
 /// ```
 base class Matrix extends Object with MatrixAuxiliary {
   late final List<int> shape;
@@ -171,7 +201,7 @@ base class Matrix extends Object with MatrixAuxiliary {
   // Determine whether the data is the same.
   // Finally, [DeepCollectionEquality] is used for data determination.
   @override
-  bool operator ==(Object other) {
+  bool operator == (Object other) {
     if (identical(this, other)) return true;
     if (other is Matrix) {
       assert(hasSameShape(other));
@@ -182,6 +212,9 @@ base class Matrix extends Object with MatrixAuxiliary {
       return false;
     }
   }
+
+  @override
+  int get hashCode => const DeepCollectionEquality().hash(self);
 
   bool operator >(Object other) {
     if (identical(this, other)) return false;

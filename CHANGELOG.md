@@ -1,3 +1,10 @@
+# [0.1.4] -2025-06-25
+- Fixed known bugs and optimized some implementations.
+- The next version will optimize the implementation and structure of the code without changing the API as much as possible.
+
+---
+
+
 # [0.1.3] -2025-04-30
 
 <p style="text-indent: 2em;">

@@ -53,15 +53,15 @@ extension MatrixMath on Matrix {
     if (dim == 0) {
       return List.generate(shape[0], (r) {
         final row_list = self[r];
-        return [row_list.min, row_list.max];
+        return Range(start: row_list.min, end: row_list.max, closure_right: true);
       });
     } else if (dim == 1) {
       return List.generate(shape[1], (c) {
         final column_list = column_(c);
-        return [column_list.min, column_list.max];
+        return Range(start: column_list.min, end: column_list.max, closure_right: true);
       });
     } else {
-      return [min(), max()];
+      return Range(start: min() as double, end: max() as double, closure_right: true);
     }
   }
 
@@ -247,3 +247,4 @@ extension MatrixMath on Matrix {
     known_column: shape[1]
   );
 }
+

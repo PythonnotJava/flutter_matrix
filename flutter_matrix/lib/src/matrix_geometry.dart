@@ -104,8 +104,8 @@ extension MatrixGeometry on Matrix {
       List<double> vec = OriginVector}) {
     assert(a > 0 && b > 0);
     return MatrixGeometry.custom_curve(
-        xfunc: (t) => a * math.cos(t).toDouble(),
-        yfunc: (t) => b * math.cos(t).toDouble(),
+        xfunc: (t) => a * math.cos(t),
+        yfunc: (t) => b * math.sin(t),
         theta_from: 0.0,
         theta_to: 2.0 * math.pi,
         size: size,

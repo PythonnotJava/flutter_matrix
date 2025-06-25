@@ -137,9 +137,9 @@ main() {
 ```
 ### output
 ```text
-[[0.0, 9.0], [-Infinity, 9.0], [-32.0, 6.0], [-Infinity, 3.0]]
-[[0.0, 5.0], [1.0, 6.0], [-Infinity, 3.0], [-Infinity, 9.0]]
-[-Infinity, 9.0]
+[Range: [0.0, 9.0], count: 0, Range: [-Infinity, 9.0], count: 0, Range: [-32.0, 6.0], count: 0, Range: [-Infinity, 3.0], count: 0]
+[Range: [0.0, 5.0], count: 0, Range: [1.0, 6.0], count: 0, Range: [-Infinity, 3.0], count: 0, Range: [-Infinity, 9.0], count: 0]
+Range: [-Infinity, 9.0], count: 0
 ```
 ## sum
 > Object sum({int dim = -1})

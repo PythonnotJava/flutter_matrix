@@ -5,13 +5,13 @@ repository: https://github.com/PythonnotJava/flutter_matrix
 documentation: https://pythonnotjava.github.io//src/pkg/Flutter_Matrix/site
 issue_tracker: https://github.com/PythonnotJava/flutter_matrix/issues
 
-version: 0.1.3
+version: 0.1.4
 
 environment:
   sdk: ">=3.0.0 < 4.0.0"
 
 dependencies:
-  collection: ^1.19.1
+  collection: ">=1.19.1"
 
 topics:
   - matrix

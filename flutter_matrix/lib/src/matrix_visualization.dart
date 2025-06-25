@@ -1,7 +1,5 @@
 part of 'matrix_type.dart';
 
-typedef Range = List<double>;
-
 extension MatrixVisualization on Matrix {
   /// Generates a visual abstraction that matches the histogram.
   /// [start] is the starting point of the count value, and [end] is the end point of the count value.
@@ -14,13 +12,13 @@ extension MatrixVisualization on Matrix {
     double intervalSize = (end - start) / counts;
     Map<Range, int> histogram = {};
     for (int c = 0; c < counts; c++) {
-      histogram[[start + c * intervalSize, start + (c + 1) * intervalSize]] = 0;
+      histogram[Range(start: start + c * intervalSize, end : start + (c + 1) * intervalSize)] = 0;
     }
     for (var list in self) {
       for (var e in list) {
         for (var range in histogram.keys) {
-          double lower = range[0];
-          double upper = range[1];
+          double lower = range.start;
+          double upper = range.end;
           if (e >= lower && e < upper) {
             histogram[range] = histogram[range]! + 1;
             break;

@@ -1,10 +1,13 @@
 # 概率论与数理统计
 
 ## mean
+
 > Object mean({int dim = -1})
-> 
+>
 > 求均值
+
 ### test
+
 ```text
 import 'package:flutter_matrix/matrix_type.dart';
 
@@ -19,17 +22,23 @@ main() {
   print(mt.mean(dim: 2));
 }
 ```
+
 ### output
+
 ```text
 [2.5, Infinity, 2.0]
-[Infinity, 2.0, 2.75, 1.25]
+[Infinity, 2.6666666666666665, 3.6666666666666665, 1.6666666666666667]
 Infinity
 ```
+
 ## median
+
 > Object median({int dim = -1})
-> 
+>
 > 求中位数
+
 ### test
+
 ```text
 import 'package:flutter_matrix/matrix_type.dart';
 
@@ -44,17 +53,23 @@ main() {
   print(mt.median(dim: 2));
 }
 ```
+
 ### output
+
 ```text
 [4.0, 3.0, 0.0]
 [1.0, 2.0, 3.0, 3.0, 4.0, 7.0, -2.0]
 3.0
 ```
+
 ## mode
+
 > Object mode({int dim = -1})
-> 
+>
 > 求众数
+
 ### test
+
 ```text
 import 'package:flutter_matrix/matrix_type.dart';
 
@@ -70,17 +85,23 @@ main() {
   print(mt.mode(dim: 2));
 }
 ```
+
 ### output
+
 ```text
 [1.0, 2.0, -2.0, 2.0]
 [Infinity, 2.0, 2.0, 3.0, 4.0, 7.0, -65.0]
 2.0
 ```
+
 ## shuffle
+
 > void shuffle({int? seed, int dim = -1})
-> 
+>
 > 随机打乱，seed是随时数种子
+
 ### test
+
 ```text
 import 'package:flutter_matrix/matrix_type.dart';
 
@@ -95,7 +116,9 @@ main() {
   m14..shuffle(dim: 10)..visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [ 0.00  0.02  0.04  0.06  0.08  0.10  0.12  0.14  0.16  0.18]
@@ -126,11 +149,15 @@ main() {
  [ 0.80  0.04  0.61  0.06  0.35  0.14  0.00  0.47  0.12  0.24]
 ]
 ```
+
 ## uniform
+
 > static Matrix uniform({double lb = 0.0, double ub = 1.0, required int row, required int column, int? seed})
-> 
+>
 > 均匀分布
+
 ### test
+
 ```text
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -253,25 +280,37 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 ```
+
 ### output
+
 ![均匀分布](src/uniform.png)
+
 ## normal
+
 > static Matrix normal({double mu = 0.0, double sigma = 1.0, required int row, required int column, int? seed})
-> 
+>
 > 正态分布
+
 ### test
+
 ```text
 static Matrix datas = MatrixRandom.normal(row: 1, column: 10000, seed: 42);
 static Map<List<double>, int> maps = datas.toHist(start: -10.0, end: 10.0, counts: 100);
 var ls = maps.keys.toList();
 ```
+
 ### output
+
 ![正态分布](src/normal.png)
+
 ## shake_total
+
 > void shake_total({double bias = 1.0, int? seed})
-> 
+>
 > 对整体数据随机上下限抖动最大abs(bias)值
+
 ### test
+
 ```text
 import 'package:flutter_matrix/matrix_type.dart';
 
@@ -280,7 +319,9 @@ main() {
   mt..shake_total(bias: 1, seed: 3)..visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [2.00000 2.00000 2.00000 2.00000 2.00000 2.00000]
@@ -295,11 +336,15 @@ main() {
  [1.61362 1.21451 2.29266 1.64790 2.31230 1.48668]
 ]
 ```
+
 ## shake_percent
+
 > void shake_percent({double bias = 1.0, double percent = 0.5, int? seed})
-> 
+>
 > 随机抖动percent占比的数据
+
 ### test
+
 ```text
 import 'package:flutter_matrix/matrix_type.dart';
 
@@ -309,7 +354,9 @@ main() {
   print(mt.count((x) => x == 2) == 4 * 6 ~/ 2);
 } 
 ```
+
 ### output
+
 ```text
 [
  [2.00000 2.00000 2.00000 2.00000 2.00000 2.00000]
@@ -325,11 +372,15 @@ main() {
 ]
 true
 ```
+
 ## shake_probably
+
 > void shake_probably({double bias = 1.0, double p = 0.5, int? seed})
-> 
+>
 > 按照概率对数据随机抖动
+
 ### test
+
 ```text
 import 'package:flutter_matrix/matrix_type.dart';
 
@@ -338,7 +389,9 @@ main() {
   mt..shake_probably(bias: 1, seed: 3, p: 0.25)..visible();
 } 
 ```
+
 ### output
+
 ```text
 [
  [2.00000 2.00000 2.00000 2.00000 2.00000 2.00000]
@@ -355,11 +408,13 @@ main() {
 ```
 
 ## binomial
+
 > static Matrix binomial({required int n, required double p, required int row, required int column, int? seed})
-> 
+>
 > 二项式分布（伯努利分布），其中n是试验次数，p是成功的概率。
 
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -369,7 +424,9 @@ main(){
   mt.visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [  9   5   6   6   6   7]
@@ -377,11 +434,15 @@ main(){
  [  5   5   7   4   9   6]
 ]
 ```
+
 ## chisquare
+
 > static Matrix chisquare({ required int df, required int row, required int column, int? seed })
-> 
+>
 > 卡方分布，其中正整数df是自由度。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -390,7 +451,9 @@ main(){
   mt.visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [5.42309 5.67948 0.43278 9.90406 0.08491 0.75004]
@@ -398,11 +461,15 @@ main(){
  [4.24697 0.43563 1.39504 4.06116 0.95671 3.23452]
 ]
 ```
+
 ## exponential
+
 > static Matrix exponential({ required double lambda, required int row, required int column, int? seed })
-> 
+>
 > 指数分布，正实数λ是速率参数。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -411,7 +478,9 @@ main(){
   mt.visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [0.59205 0.30458 0.44661 0.37097 0.68382 0.37191 0.19418]
@@ -419,11 +488,15 @@ main(){
  [0.08204 0.16524 1.15535 0.70234 0.04674 0.30218 0.07011]
 ]
 ```
+
 ## f
+
 > static Matrix f({ required int d1, required int d2, required int row, required int column, int? seed })
-> 
+>
 > F 分布。其中 d1 和 d2 ] 是两个独立卡方分布的自由度。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -433,7 +506,9 @@ main(){
   mt.visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [ 0.92346  0.66244  3.03371  0.18384  0.63915  0.97611]
@@ -442,11 +517,15 @@ main(){
  [ 1.02146  4.00121  0.25865  2.29399  2.07985  0.07998]
 ]
 ```
+
 ## gamma
+
 > static Matrix gamma({ required double k, required double theta, required int row, required int column, int? seed })
-> 
+>
 > 伽马分布，其中k是形状参数，theta是尺度参数。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -456,18 +535,24 @@ main(){
   mt.visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [ 1.97898  2.11548  1.97235  2.01070  1.97023  2.15622  1.96931  1.96695  1.97193]
  [ 1.99453  1.98793  1.98049  1.99853  2.01608  2.06490  1.96879  2.18777  2.01119]
 ]
 ```
+
 ## beta
+
 > static Matrix beta({ required double a, required double b, required int row, required int column, int? seed })
-> 
+>
 > 贝塔分布，参数a和b分别是分子和分母的形状参数。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -477,7 +562,9 @@ main(){
   mt.visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [ 0.49674  0.47748  0.49000  0.51771  0.48358  0.53437]
@@ -485,11 +572,15 @@ main(){
  [ 0.47745  0.47656  0.47766  0.48641  0.46924  0.47451]
 ]
 ```
+
 ## dirichlet
-> static Matrix dirichlet({ required List<double> alpha, required int row, int? seed })
-> 
+
+> static Matrix dirichlet({ required List`<double>` alpha, required int row, int? seed })
+>
 > 狄利克雷分布，alpha参数是长度为列且不小于2的浮点序列，alpha中的每个数都必须大于0。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -499,7 +590,9 @@ main(){
   mt.visible();
 }
 ```
+
 ### output
+
 ```
 [
  [ 0.06777  0.10927  0.14974  0.19033  0.06799  0.02707  0.03108  0.35675]
@@ -508,12 +601,16 @@ main(){
  [ 0.06923  0.10830  0.15226  0.19454  0.06776  0.02710  0.02705  0.35375]
  [ 0.06978  0.10861  0.14912  0.19070  0.06796  0.03449  0.02751  0.35182]
 ]
-``` 
+```
+
 ## geometric
+
 > static Matrix geometric({ required double p, required int row, required int column, int? seed })
-> 
+>
 > 几何分布，其中p是成功的概率。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -523,7 +620,9 @@ main(){
   mt.visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [  1   3   1   1  33   2  15]
@@ -532,11 +631,15 @@ main(){
  [  6   7  11   5  16   4  10]
 ]
 ```
+
 ## gumbel
+
 > static Matrix gumbel({ required double loc, required double scale, required int row, required int column, int? seed })
-> 
+>
 > 耿贝尔分布，其中loc是分布的众数的位置，scale是分布的尺度参数，并且必须为非负数。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -546,18 +649,24 @@ main(){
   mt.visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [-0.22699 -0.70834  2.46328 -0.27267  1.13736 -0.50648  0.10226  1.58143  3.05194]
  [ 1.54331 -0.05892  0.14372  3.15481  0.44702  0.25944 -0.13567  0.74313  0.23801]
 ]
 ```
+
 ## hypergeometric
+
 > static Matrix hypergeometric({ required int N, required int K, required int n, required int row, required int column, int? seed })
-> 
+>
 > 超几何分布，参数N、K、n分别表示元素总数、目标元素总数、抽取的样本数，最终得到样本中目标元素的数量。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -567,7 +676,9 @@ main(){
   mt.visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [  2   8   6   6   5   3]
@@ -578,11 +689,15 @@ main(){
  [  5   4   7   8   4   3]
 ]
 ```
+
 ## laplace
+
 > static Matrix laplace({ required double mu, required double b, required int row, required int column, int? seed })
-> 
+>
 > 拉普拉斯分布，又称双指数分布，mu是位置参数，非负数b是尺度参数。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -592,7 +707,9 @@ main(){
   mt.visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [ 5.15415  2.07610 -1.37176 -2.41060 -0.99129  3.98637  0.31916  0.24522]
@@ -601,10 +718,13 @@ main(){
 ```
 
 ## logistic
+
 > static Matrix logistic({ required double mu, required double s, required int row, required int column, int? seed })
 >
 > 逻辑分布，其中mu和s分别是位置参数和尺度参数，s大于0。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -614,7 +734,9 @@ main(){
   mt.visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [-2.34886 -0.62398 -0.72241 -0.47850 -3.57510  1.69050]
@@ -626,10 +748,13 @@ main(){
 ```
 
 ## lognormal
+
 > static Matrix lognormal({ required double mu, required double sigma, required int row, required int column, int? seed })
-> 
+>
 > 对数正态分布，其中mu和sigma分别是位置参数和尺度参数，sigma大于0。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -639,7 +764,9 @@ main(){
   mt.visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [ 0.37147  0.43134  2.04398  0.59404  0.89507  0.46283]
@@ -651,10 +778,13 @@ main(){
 ```
 
 ## multinomial
-> static Matrix multinomial({ required int n, required List<double> p, required int row, int? seed })
-> 
+
+> static Matrix multinomial({ required int n, required List`<double>` p, required int row, int? seed })
+>
 > 多项式分布，其中n表示实验次数，p是概率列表且和为1。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -664,7 +794,9 @@ main(){
   mt.visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [  2   2   1   3   0   0]
@@ -676,10 +808,13 @@ main(){
 ```
 
 ## poisson
+
 > static Matrix poisson({ required double lambda, required int row, required int column, int? seed })
-> 
+>
 > 泊松分布，参数lambda表示平均值。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -688,7 +823,9 @@ main(){
   MatrixRandom.poisson(lambda: 3, row: 5, column: 9).visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [ 2.00000  7.00000  4.00000  3.00000  5.00000  5.00000  1.00000  3.00000  7.00000]
@@ -700,10 +837,13 @@ main(){
 ```
 
 ## cauchy
+
 > static Matrix cauchy({ required double x0, required double gamma, required int row, required int column, int? seed })
-> 
+>
 > 柯西分布，参数x0是中心位置，正数gamma表示规模。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -712,7 +852,9 @@ main(){
   MatrixRandom.cauchy(x0: 0, gamma: 1, row: 3, column: 7).visible();  // stand-cauchy-distribution.
 }
 ```
+
 ### output
+
 ```text
 [
  [ -0.12131   9.06796  -3.06638   0.83097   1.10302  -0.78527  -1.10908]
@@ -722,10 +864,13 @@ main(){
 ```
 
 ## pareto
+
 > static Matrix pareto({ required double xm, required double alpha, required int row, required int column, int? seed })
-> 
+>
 > 帕累托分布，xm是规模参数，正数alpha是形状参数。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -734,7 +879,9 @@ main(){
   MatrixRandom.pareto(xm: 0.5, alpha: 2, row: 3, column: 8).visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [  1.63208   0.51504   0.51024   0.98437   0.52300   1.09564   1.39615   1.12143]
@@ -742,11 +889,15 @@ main(){
  [  0.51333   0.51563   0.66283   0.50024   0.52752   0.96687   0.63692   0.71290]
 ]
 ```
+
 ## rayleigh
+
 > static Matrix rayleigh({ required double sigma, required int row, required int column, int? seed })
-> 
+>
 > 瑞利分布，正数sigma是规模参数。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -755,18 +906,24 @@ main(){
   MatrixRandom.rayleigh(sigma: 5, row: 2, column: 8).visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [ 4.14  4.63 11.24 13.64 10.93  2.56  7.49  3.43]
  [ 3.73  1.64  8.93  3.25  9.83  5.23  4.97 11.78]
 ]
 ```
+
 ## triangular
+
 > static Matrix triangular({ required double a, required double b, required double c, required int row, required int column, int? seed })
-> 
+>
 > 三角分布，下限为a，上限为b，众数为c。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -775,7 +932,9 @@ main(){
   MatrixRandom.triangular(a: 1, b: 8, c: 5, row: 4, column: 8).visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [ 3.66  4.67  3.68  5.92  4.96  2.80  6.62  5.98]
@@ -784,11 +943,15 @@ main(){
  [ 3.94  1.76  6.95  3.74  3.87  1.95  4.79  4.48]
 ]
 ```
+
 ## wald
+
 > static Matrix wald({ required double mu, required double lambda, required int row, required int column, int? seed })
-> 
+>
 > 逆高斯分布（也称为Wald 分布），平均值mu和形状参数lambda均为正数。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -797,18 +960,24 @@ main(){
   MatrixRandom.wald(mu: 1, lambda: 2, row: 2, column: 6).visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [ 0.82  0.53  0.90  1.89  1.10  1.61]
  [ 0.43  0.24  0.34  1.03  0.65  1.39]
 ]
 ```
+
 ## weibull
+
 > static Matrix weibull({ required double k, required double lambda, required int row, required int column, int? seed })
-> 
+>
 > 韦伯分布，尺度参数lambda和形状参数k均为正数。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -817,18 +986,24 @@ main(){
   MatrixRandom.weibull(k: 1, lambda: 2, row: 2, column: 6).visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [ 2.85  1.49  0.61  1.87  1.71  4.27]
  [ 0.57  0.12  1.19  0.36  5.12  1.33]
 ]
 ```
+
 ## vonmises
+
 > static Matrix vonmises({ required double k, required double mu, required int row, required int column, int? seed })
-> 
+>
 > 冯·米塞斯分布，参数mu和k分别表示位置和集中度，k>0。
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -837,7 +1012,9 @@ main(){
   MatrixRandom.vonmises(k: 1, mu: 0, row: 10, column: 10).visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [-0.09 -0.85  0.63  0.59 -1.30  0.48  1.02  0.81 -1.13 -0.08]
@@ -852,11 +1029,15 @@ main(){
  [-1.14 -1.00 -1.91 -0.24  1.22 -0.36 -0.81 -0.55 -0.30  1.06]
 ]
 ```
+
 ## t
+
 > static Matrix t({ required int v, required double mu, required int row, required int column, int? seed })
-> 
+>
 > 学生t分布，正整数v表示自由度，mu是非中心参数
+
 ### test
+
 ```text
 import '../lib/flutter_matrix.dart';
 
@@ -866,7 +1047,9 @@ main(){
   mt.visible();
 }
 ```
+
 ### output
+
 ```text
 [
  [-0.40 -0.42 -1.23 -2.11 -0.63 -0.29 -7.35  1.27]

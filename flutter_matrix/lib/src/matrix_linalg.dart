@@ -107,14 +107,18 @@ extension MatrixLinalg on Matrix {
   Matrix kronecker({required Matrix other}) {
     var [row, column] = shape;
     var [other_row, other_column] = other.shape;
-    final data = List.generate(row * other_row,
+
+    var data = List.generate(row * other_row,
         (i) => List.filled(column * other_column, 0.0, growable: true));
+
+    int result_row, result_column;
     for (var i = 0; i < row; i++) {
-      for (var j = 0; j < other_row; j++) {
-        for (var k = 0; k < column; k++) {
+      for (var j = 0; j < column; j++) {
+        for (var k = 0; k < other_row; k++) {
           for (var l = 0; l < other_column; l++) {
-            data[i * other_row + k][j * other_column + l] =
-                self[i][j] * other[k][l];
+            result_row = i * other_row + k;
+            result_column = j * other_column + l;
+            data[result_row][result_column] = self[i][j] * other.self[k][l];
           }
         }
       }

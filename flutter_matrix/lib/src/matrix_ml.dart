@@ -97,8 +97,8 @@ extension MatrixML on Matrix {
     var [row, column] = shape;
     return Matrix.fromList(
       List.generate(row, (r) => List.generate(column, (c){
-        double v = -self[r][c];
-        return v / (1.0 + math.exp(v));
+        double v = self[r][c];
+        return v / (1.0 + math.exp(-v));
       })),
       known_row: row,
       known_column: column
