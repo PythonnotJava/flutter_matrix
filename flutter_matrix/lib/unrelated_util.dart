@@ -1,8 +1,109 @@
 import 'dart:math' as math;
-
-import 'package:flutter_matrix/flutter_matrix.dart' show Alert;
+import 'dart:typed_data';
 
 /// A package encapsulates unrelated utilities.
+/// Type specification, int and double are standard types,
+/// bool is constructed using [BoolList] which saves more memory,
+/// and others are related to [TypedData].
+enum Typed {
+  int8,
+  int16,
+  int32,
+  int64,
+  int,
+  float32,
+  float64,
+  double,
+  bool,
+  uint8,
+  uint16,
+  uint32,
+  uint64,
+  complex
+}
+
+/// Special attention content information warning by [Alert].
+final class Alert {
+  final String msg;
+  const Alert(this.msg);
+  String toString() => 'Alert : $msg';
+}
+
+/// When a change needs to be specifically marked, use the [Since] class.
+final class Since {
+  final String msg;
+  const Since(this.msg);
+  String toString() => 'Since : $msg';
+}
+
+/// Just a general marker.
+final class Marker {
+  final String? msg;
+  const Marker([String? msg]) : msg = msg ?? "";
+  String toString() => 'Marker : $msg';
+}
+
+/// [Range] is an abstraction of a range, where [start] is allowed to be no greater than [end].
+/// [count] indicates the number of equal parts of the range.
+/// When [count] is equal to zero, it indicates a continuous range.
+/// [closure_left], [closure_right] indicate whether the range contains edge values.
+/// The default is a continuous range with left closed and right open.
+/// When the range is infinite at any boundary, count is always 0 and the boundary can only be opened.
+class Range {
+  final double start;
+  final double end;
+  final int count;
+  final bool closure_left;
+  final bool closure_right;
+
+  Range({
+    required this.start,
+    required this.end,
+    int count = 0,
+    bool closure_left = true,
+    bool closure_right = false,
+  })  : assert(count >= 0),
+        count = (start.isInfinite || end.isInfinite) ? 0 : count,
+        closure_left = start.isInfinite ? false : closure_left,
+        closure_right = end.isInfinite ? false : closure_right;
+
+  @override
+  bool operator == (Object other) {
+    if (identical(this, other)) {
+      return true;
+    } else if (other is Range) {
+      return runtimeType == other.runtimeType &&
+          start == other.start &&
+          end == other.end &&
+          count == other.count &&
+          closure_left == other.closure_left &&
+          closure_right == other.closure_right;
+    } else {
+      return false;
+    }
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(start, end, count, closure_left, closure_right);
+
+  @override
+  String toString([bool map_like = false]) {
+    if (map_like){
+      return "Range {\n"
+          "\tstart: $start,\n"
+          "\tend: $start,\n"
+          "\tcount: $count,\n"
+          "\tclosure_left: $closure_left,\n"
+          "\tclosure_right: $closure_left,\n"
+          "}";
+    } else {
+      String left = closure_left ? "[" : "(";
+      String right = closure_right ? "]" : ")";
+      return "Range: $left$start, $end$right, count: $count";
+    }
+  }
+}
 
 /// Calculation accuracy
 const double EPSILON = 1.4901161193847656e-08;
@@ -535,5 +636,10 @@ final class RandomGenerator{
     double Z = StandardNormal(rd);
     double V = Chisquare(rd, df: v);
     return (Z + mu) * math.sqrt(v / V);
+  }
+
+  /// Frechet distribution, positive alpha indicates the shape, positive s indicates the proportion, and m indicates the position of the minimum value.
+  double Frechet(math.Random rd, {required double alpha, required double s, required double m}){
+    return m + s / math.pow(-math.log(rd.nextDouble()), 1 / alpha);
   }
 }

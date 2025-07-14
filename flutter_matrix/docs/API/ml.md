@@ -1,22 +1,21 @@
 # 一些机器学习工具的简单实现
 
 ## Softmax
-
-> Matrix Softmax({int dim = -1})
->
-> 将数据映射为概率分布，定义如下（实际中会考虑排除数据中的最大值，这里不考虑）：
->
-> $$
-> Softmax(X) = \frac{e^{x_i}}{\displaystyle \sum_{i \in N } e^{x_i}}
-> $$
+- 将数据通过Softmax映射，实际中会考虑排除数据中的最大值，这里不考虑
+```text
+T Softmax({int dim = -1}) 
+```
+$$
+Softmax(X) = \frac{e^{x_i}}{\displaystyle \sum_{i \in N } e^{x_i}}
+$$
 
 ### test
 
 ```text
-import '../lib/flutter_matrix.dart';
+import 'package:flutter_matrix/matrix_type.dart';
 
 main(){
-  data_format = "%2.6f";
+  data_format = "%2.3f";
   var mt = Matrix.fromList([
     [1, 2, 3, 1],
     [2, 3, 4, 9],
@@ -32,41 +31,41 @@ main(){
 
 ```text
 [
- [ 0.082595  0.224515  0.610296  0.082595]
- [ 0.000903  0.002454  0.006670  0.989973]
- [ 0.012038  0.088947  0.657233  0.241783]
+ [ 0.083  0.225  0.610  0.083]
+ [ 0.001  0.002  0.007  0.990]
+ [ 0.012  0.089  0.657  0.242]
 ]
 [
- [ 0.090031  0.042010  0.017148  0.000319]
- [ 0.244728  0.114195  0.046613  0.952270]
- [ 0.665241  0.843795  0.936240  0.047411]
+ [ 0.090  0.042  0.017  0.000]
+ [ 0.245  0.114  0.047  0.952]
+ [ 0.665  0.844  0.936  0.047]
 ]
 [
- [ 0.000275  0.000747  0.002032  0.000275]
- [ 0.000747  0.002032  0.005522  0.819600]
- [ 0.002032  0.015012  0.110921  0.040805]
+ [ 0.000  0.001  0.002  0.000]
+ [ 0.001  0.002  0.006  0.820]
+ [ 0.002  0.015  0.111  0.041]
 ]
 ```
 
 ## LeakyReLU
 
-> Matrix LeakyReLU({double alpha = 0.01})
->
-> LeakyReLU是一种改进的激活函数，旨在解决ReLU函数中负输入导致的零梯度问题。
->
-> $$
-> LeakyReLU(X) =
-> $$
+- LeakyReLU是一种改进的激活函数，旨在解决ReLU函数中负输入导致的零梯度问题
+```text
+T LeakyReLU({double alpha = 0.01})
+```
 
+$$
+LeakyReLU(X) =
 \begin{cases}
-x, & x > 0 \\
+x, & x 0 \\
 \alpha x, & x \le 0
-\end{cases}$$
+\end{cases}
+$$
 
 ### test
 
 ```text
-import '../lib/flutter_matrix.dart';
+import 'package:flutter_matrix/matrix_type.dart';
 
 main(){
   data_format = "%2.6f";
@@ -91,18 +90,18 @@ main(){
 
 ## ReLU
 
-> Matrix ReLU()
->
-> 激活函数ReLU。
->
-> $$
-> ReLU(x) = max(x, 0)
-> $$
+- 激活函数ReLU
+```text
+T ReLU()
+```
+$$
+ReLU(x) = max(x, 0)
+$$
 
 ### test
 
 ```text
-import '../lib/flutter_matrix.dart';
+import 'package:flutter_matrix/matrix_type.dart';
 
 main(){
   data_format = "%2.0f";
@@ -113,7 +112,6 @@ main(){
   ]);
   print(mt.ReLU());
 }
-
 ```
 
 ### output
@@ -128,18 +126,18 @@ main(){
 
 ## Sigmoid
 
-> Matrix Sigmoid()
->
-> 激活函数，也被称为S型生长曲线。
->
-> $$
-> Sigmoid(x) = \frac{1}{1 + e^{-x}}
-> $$
+- 激活函数，也被称为S型生长曲线
+```text
+T Sigmoid()
+```
+$$
+Sigmoid(x) = \frac{1}{1 + e^{-x}}
+$$
 
 ### test
 
 ```text
-import '../lib/flutter_matrix.dart';
+import 'package:flutter_matrix/matrix_type.dart';
 
 main(){
   data_format = "%2.5f";
@@ -165,18 +163,18 @@ main(){
 
 ## ELU
 
-> Matrix ELU({required double alpha})
->
-> 激活函数ELU。
->
-> $$
-> ELU(x) = \begin{cases} x, &x > 0 \\ \alpha (e^x - 1), & x \le 0\end{cases}
-> $$
+- 激活函数ELU
+```text
+T ELU({required double alpha}) 
+```
+$$
+ELU(x) = \begin{cases} x, &x 0 \\ \alpha (e^x - 1), & x \le 0\end{cases}
+$$
 
 ### test
 
 ```text
-import '../lib/flutter_matrix.dart';
+import 'package:flutter_matrix/matrix_type.dart';
 
 main(){
   data_format = "%2.5f";
@@ -201,18 +199,18 @@ main(){
 
 ## Swish
 
-> Matrix Swish()
->
-> Swish是一种自我门控的激活函数。
->
-> $$
-> Swish(x) = x * Sigmoid(x)
-> $$
+- Swish是一种自我门控的激活函数
+```text
+T Swish()
+```
+$$
+Swish(x) = x * Sigmoid(x)
+$$
 
 ### test
 
 ```text
-import '../lib/flutter_matrix.dart';
+import 'package:flutter_matrix/matrix_type.dart';
 
 main(){
   data_format = "%2.5f";
@@ -237,18 +235,18 @@ main(){
 
 ## Softsign
 
-> Matrix Softsign()
->
-> Softsign函数是Tanh函数的另一个替代选择。
->
-> $$
-> Softsign(x) = \frac{x}{1+ |x|}
-> $$
+- Softsign函数是Tanh函数的另一个替代选择
+```text
+T Softsign()
+```
+$$
+Softsign(x) = \frac{x}{1+ |x|}
+$$
 
 ### test
 
 ```text
-import '../lib/flutter_matrix.dart';
+import 'package:flutter_matrix/matrix_type.dart';
 
 main(){
   data_format = "%2.5f";
@@ -272,19 +270,19 @@ main(){
 ```
 
 ## Softplus
+- Softplus函数可以看作是ReLU函数的平滑
+```text
+T Softplus()
+```
 
-> Matrix Softplus()
->
-> Softplus函数可以看作是ReLU函数的平滑。
->
-> $$
-> Softplus(x) = log(1 + e^x)
-> $$
+$$
+Softplus(x) = log(1 + e^x)
+$$
 
 ### test
 
 ```text
-import '../lib/flutter_matrix.dart';
+import 'package:flutter_matrix/matrix_type.dart';
 
 main(){
   data_format = "%2.5f";
@@ -308,19 +306,18 @@ main(){
 ```
 
 ## MAE
-
-> Object MAE({required Matrix other, int dim = -1})
->
-> 平均绝对值误差，它表示预测值和观测值之间绝对误差的平均值。
->
-> $$
-> MAE(X, h) = \frac{1}{n} \displaystyle \sum_{i \in N} |y_i - \hat{y_i}|
-> $$
+- 平均绝对值误差，它表示预测值和观测值之间绝对误差的平均值
+```text
+Object MAE({required Matrix other, int dim = -1})
+```
+$$
+MAE(X, h) = \frac{1}{n} \displaystyle \sum_{i \in N} |y_i - \hat{y_i}|
+$$
 
 ### test
 
 ```text
-import '../lib/flutter_matrix.dart';
+import 'package:flutter_matrix/matrix_type.dart';
 
 main(){
   var mt = Matrix.fromList([
@@ -343,19 +340,19 @@ main(){
 ```
 
 ## MSE
+- MSE通过计算预测值和真实值之间的误差平方的平均值，来衡量模型的预测性能
+```text
+Object MSE({required Matrix other, int dim = -1})
+```
 
-> Object MSE({required Matrix other, int dim = -1})
->
-> MSE通过计算预测值和真实值之间的误差平方的平均值，来衡量模型的预测性能。
->
-> $$
-> MSE = \frac{1}{n} \displaystyle \sum_{i \in N} (y_i - \hat{y}_i) ^2
-> $$
+$$
+MSE = \frac{1}{n} \displaystyle \sum_{i \in N} (y_i - \hat{y}_i) ^2
+$$
 
 ### test
 
 ```text
-import '../lib/flutter_matrix.dart';
+import 'package:flutter_matrix/matrix_type.dart';
 
 main(){
   var mt = Matrix.fromList([
@@ -376,3 +373,5 @@ main(){
 [0.6166666666666666, 0.42296666666666666, 3.99, 0.8433333333333334, 0.62]
 1.2985933333333333
 ```
+
+[下一篇：概率论与数理统计](random.md)

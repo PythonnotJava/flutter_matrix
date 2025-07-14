@@ -1,274 +1,258 @@
 # 函数工具
 
 ## any
-> Object any(bool Function(double) condition, {int dim = -1})
-> 
-> 判断矩阵中是否存在满足条件的值（存在性问题）
-### test
+- 是否存在满足条件的数据
 ```text
+Object any(bool Function(double) condition, {int dim = -1})
+```
+
+### test
+```dart
 import 'package:flutter_matrix/matrix_type.dart';
 
-main() {
-  data_format = "%2.0f";
-  List<List<double>> data = [
-    [4, double.nan, 0, 9],
-    [0, 3, 1, double.infinity],
-    [5, 6, 3, -double.infinity],
-  ];
-  var mt1 = Matrix(data);
-  print(mt1.any((x) => x == double.negativeInfinity, dim: 0));
-  print(mt1.any((x) => x == double.negativeInfinity, dim: 1));
-  print(mt1.any((x) => x == double.negativeInfinity, dim: 2));
+main(){
+  var t1 = Matrix.fromList([
+    [3, double.nan, 2, 1],
+    [0, 2, 13, 3],
+    [9, double.negativeInfinity, 8, 8]
+  ]);
+  print(t1.any((x) => x < 0, dim: 0));
+  print(t1.any((x) => x < 0, dim: 1));
+  print(t1.any((x) => x < 0, dim: 2));
+  print(t1.any((x) => x.isNaN,dim: 2));
 }
 ```
 ### output
 ```text
 [false, false, true]
-[false, false, false, true]
+[false, true, false, false]
+true
 true
 ```
+
 ## all
-> Object all(bool Function(double) condition, {int dim = -1})
->
-> 判断矩阵中数据是否全部满足条件（整体满足问题）
-### test
+- 判断所有元素是否满足条件
 ```text
+Object all(bool Function(double) conditon, {int dim = -1})
+```
+
+### test
+```dart
 import 'package:flutter_matrix/matrix_type.dart';
 
-main() {
-  data_format = "%2.0f";
-  List<List<double>> data = [
-    [4, -3, 0, 9],
-    [0, 3, 1, 7],
-    [2, 6, 82, 8],
-  ];
-  var mt1 = Matrix(data);
-  print(mt1.any((x) => x ~/ 2 == 0, dim: 0));
-  print(mt1.any((x) => x ~/ 2 == 0, dim: 1));
-  print(mt1.any((x) => x ~/ 2 == 0, dim: 2));
+main(){
+  var t1 = Matrix.fromList([
+    [3, double.nan, 2, 1],
+    [0, 2, 13, 3],
+    [9, double.negativeInfinity, 8, 8]
+  ]);
+  print(t1.all((x) => x >= 0, dim: 0));
+  print(t1.all((x) => x >= 0, dim: 1));
+  print(t1.all((x) => x >= 0, dim: 2));
+  print(t1.all((x) => !x.isNaN,dim: 2));
 }
 ```
 ### output
 ```text
-[true, true, false]
-[true, false, true, false]
-true
+[false, true, false]
+[true, false, true, true]
+false
+false
 ```
 ## reduce
-> Object reduce(double Function(double, double) condition, {double? element, int dim = -1})
-> 
-> 定义归约操作，element是选择性传入的初始归约值
-### test
+- 对矩阵进行累积运算，元素用于初始化并记录累积值（如果设置）
 ```text
+Object reduce(
+    double Function(double, double) condition, {
+    double? element, int dim = -1
+})
+```
+
+### test
+```dart
 import 'package:flutter_matrix/matrix_type.dart';
 
-main() {
+main(){
   data_format = "%2.0f";
-  var mt = Matrix.range(row: 4, column: 3, start: 1, step: 2);
-  mt.visible();
-  print(mt.reduce((x, y) => x + y, element: 10.0, dim: 0));
-  print(mt.reduce((x, y) => x / y, element: 1.0, dim: 1));
-  print(mt.reduce((x, y) => x * y, element: null, dim: 2));
+  var t1 = Matrix.fromList([
+    [3, -2, 2, 1],
+    [0, 2, 13, 3],
+    [9, double.negativeInfinity, 8, 8]
+  ]);
+  print(t1.reduce((x, y) => x + y, dim: 0));
+  print(t1.reduce((x, y) => x * y, element: 1, dim: 1));
+  print(t1.reduce((x, y) => x + y, dim: 2));
+  t1..setMask(nag_inf_mask: 0)..visible()..reduce((x, y) => x + y, dim: 2);
+}
+```
+### output
+```text
+[4.0, 18.0, -Infinity]
+[0.0, Infinity, 208.0, 24.0]
+-Infinity
+[
+ [  3  -2   2   1]
+ [  0   2  13   3]
+ [  9   0   8   8]
+]
+```
+## replace
+- 替换满足条件的值。cope为替换方式
+```text
+void replace(bool Function(double) condition,
+          {required double Function(double) cope})
+```
+
+### test
+```dart
+import 'package:flutter_matrix/matrix_type.dart';
+
+main(){
+  data_format = "%2.0f";
+  var t1 = Matrix.fromList([
+    [3, -2, double.infinity, 1],
+    [0, 2, -1, 3],
+    [9, double.negativeInfinity, 8, 8]
+  ]);
+  t1..replace((x) => x.isInfinite, cope: (x) => 3)..visible();
+  t1..replace((x) => x < 0, cope: (x) => x * x)..visible();
 }
 ```
 ### output
 ```text
 [
- [  1   3   5]
- [  7   9  11]
- [ 13  15  17]
- [ 19  21  23]
+ [  3  -2   3   1]
+ [  0   2  -1   3]
+ [  9   3   8   8]
 ]
-[19.0, 37.0, 55.0, 73.0]
-[0.000578368999421631, 0.00011757789535567314, 0.00004650081376424089]
-316234143225.0
+[
+ [  3   4   3   1]
+ [  0   2   1   3]
+ [  9   3   8   8]
+]
 ```
-## customize
-> Matrix customize(double Function(double) condition)
-> 
-> 自定义映射，如有要对一个矩阵实现对数据的多次运算且需要避免多次创建，customize是一个不错的选择
-### test
+## count
+- 对满足条件的值计数
 ```text
-import 'dart:math' as math;
+Object count(bool Function(double) condition, {int dim = -1})
+```
+
+### test
+```dart
 import 'package:flutter_matrix/matrix_type.dart';
 
-main() {
+main(){
   data_format = "%2.0f";
-  List<List<double>> data = [
-    [1, -3, 1, 9],
-    [1, 3, 1, 7],
-    [2, 6, -5, 8],
-  ];
-  final f = (x) => math.exp(x) + math.cos(x) + x * x;
-  var mt1 = Matrix(data);
-  var y = mt1.customize(f);
-  var y_derivative = mt1.customize((x) => math.exp(x) - math.sin(x) + 2 * x);
-  y.visible();
-  y_derivative.visible();
-  mt1.diff(f).visible();
+  var t1 = Matrix.fromList([
+    [3, -2, double.infinity, 1],
+    [0, 2, -1, 3],
+    [9, double.negativeInfinity, 8, 8]
+  ]);
+  print(t1.count((x) => x < 0, dim: 0));
+  print(t1.count((x) => x < 0, dim: 1));
+  print(t1.count((x) => x < 0, dim: 2));
+}
+```
+### output
+```text
+[1, 1, 1]
+[0, 2, 1, 0]
+3
+```
+## 对数据自定义映射
+- customize
+```text
+T customize(double Function(double) condition)
+```
+
+### test
+```dart
+import 'package:flutter_matrix/matrix_type.dart';
+
+main(){
+  data_format = "%8.0f";
+  var t1 = Matrix.fromList([
+    [3, -2, double.infinity, 1],
+    [0, 2, -1, 3],
+    [9, double.negativeInfinity, 8, 8]
+  ]);
+  t1.customize((x) => x >= 0 ? x : x.isInfinite ? 2 : x * x).visible();
 }
 ```
 ### output
 ```text
 [
- [  4   8   4 8183]
- [  4  28   4 1146]
- [ 11 440  25 3045]
-]
-[
- [  4  -6   4 8121]
- [  4  26   4 1110]
- [ 10 416 -11 2996]
-]
-[
- [  4  -6   4 8121]
- [  4  26   4 1110]
- [ 10 416 -11 2996]
+ [        3         4  Infinity         1]
+ [        0         2         1         3]
+ [        9         2         8         8]
 ]
 ```
 ## confront
-> Matrix confront(double Function(double, double) condition, {required Matrix other})
-> 
-> 实现两个矩阵对应位置上的数据之间的操作映射
-### test
+- 两个矩阵中同一位置的数据的条件映射。
 ```text
+T confront(double Function(double, double) condition, {required T other})
+```
+
+### test
+```dart
+import 'dart:math';
+
 import 'package:flutter_matrix/matrix_type.dart';
 
-main() {
-  data_format = "%2.1f";
-  List<List<double>> data = [
-    [4, 1, 0, 9],
-    [0, 3, 1, 9],
-    [5, 6, 3, 2],
-    [1, 2, 3, 8],
-  ];
-  var mt = Matrix.fromList(data);
-  var mt1 = Matrix.fromList([
-    [4, -1, 0, 9],
-    [0, -3, 1, 9],
-    [5, 6, -3, 2],
-    [1, 2, -3, 8],
+main(){
+  data_format = "%2.0f";
+  var t1 = Matrix.fromList([
+    [3, -2, double.infinity, 1],
+    [0, 2, -1, 3],
+    [9, -4, 8, 8]
   ]);
-  final a = mt.confront((x, y) => x + y, other: mt1)
-    ..visible(); // Simulate addition
-  final b = (mt1 + mt)..visible();
-  print(a == b);
+  var other = MatrixBase.fill<Matrix>(number: 2, row: 3, column: 4);
+  t1.confront((x, y) => min(x, y), other: other).visible();
 }
 ```
 ### output
 ```text
 [
- [ 8.0  0.0  0.0 18.0]
- [ 0.0  0.0  2.0 18.0]
- [10.0 12.0  0.0  4.0]
- [ 2.0  4.0  0.0 16.0]
-]
-[
- [ 8.0  0.0  0.0 18.0]
- [ 0.0  0.0  2.0 18.0]
- [10.0 12.0  0.0  4.0]
- [ 2.0  4.0  0.0 16.0]
-]
-true
-```
-## replace
-> void replace(bool Function(double) condition, {required double Function(double) cope})
-> 
-> 对满足条件的值进行映射到cope函数值
-### test
-```text
-import 'package:flutter_matrix/matrix_type.dart';
-
-main() {
-  data_format = "%2.1f";
-  List<List<double>> data = [
-    [4, 1, 0, 9],
-    [0, 3, 1, 9],
-    [5, 6, 3, 2],
-    [1, 2, 3, 8],
-  ];
-  var mt = Matrix.fromList(data)..replace((x) => x == 9 || x == 0, cope: (_) => 7);
-  mt.visible();
-}
-```
-### output
-```text
-[
- [ 4.0  1.0  7.0  7.0]
- [ 7.0  3.0  1.0  7.0]
- [ 5.0  6.0  3.0  2.0]
- [ 1.0  2.0  3.0  8.0]
+ [  2  -2   2   1]
+ [  0   2  -1   2]
+ [  2  -4   2   2]
 ]
 ```
 ## clip
-> Matrix clip(double Function(double) condition, {required double lb, required double ub, bool reverse = false})
-> 根据上下限限制的数据进行条件替换，reverse为true表示范围两侧保留，其余替换，反之范围内保留，两侧替换
-### test
+- 裁剪数据，lb 表示下限，ub 表示上限。如果 reverse 为真，则保留两边的数据，否则，保留范围内的数据
+- 对不符合条件的，进行条件映射
 ```text
+T clip(double Function(double) condition,
+          {required double lb, required double ub, bool reverse = false})
+```
+
+### test
+```dart
 import 'package:flutter_matrix/matrix_type.dart';
 
-main() {
-  data_format = "%2.0f";
-  var mt = Matrix.range(row: 4, column: 6, start: 1, step: 2);
-  mt.visible();
-  mt.clip((x) => x < 3 ? 3 : x > 8 ? 8 : x, lb: 3, ub: 8, reverse: false).visible();
-  mt.clip((x) => 3 < x && x < 8 ? 0 : x, lb: 3, ub: 8, reverse: true).visible();
+main(){
+  data_format = "%7.0f";
+  var t1 = Matrix.fromList([
+    [3, -2, double.infinity, 1],
+    [0, 2, -1, 3],
+    [9, -4, 8, 8]
+  ]);
+  t1.clip((_) => 7, lb: 2, ub: 9, reverse: false).visible();
+  t1.clip((_) => 7, lb: 2, ub: 9, reverse: true).visible();
 }
 ```
 ### output
 ```text
 [
- [  1   3   5   7   9  11]
- [ 13  15  17  19  21  23]
- [ 25  27  29  31  33  35]
- [ 37  39  41  43  45  47]
+ [       3        7        7        7]
+ [       7        2        7        3]
+ [       9        7        8        8]
 ]
 [
- [  3   3   5   7   8   8]
- [  8   8   8   8   8   8]
- [  8   8   8   8   8   8]
- [  8   8   8   8   8   8]
-]
-[
- [  1   3   0   0   9  11]
- [ 13  15  17  19  21  23]
- [ 25  27  29  31  33  35]
- [ 37  39  41  43  45  47]
+ [       7       -2 Infinity        1]
+ [       0        2       -1        7]
+ [       9       -4        7        7]
 ]
 ```
 
-## count
-> Object count(bool Function(double) condition, {int dim = -1})
-> 
-> 统计满足统计值的个数
-### test
-```text
-import 'package:collection/collection.dart';
-import 'package:flutter_matrix/matrix_type.dart';
-
-main() {
-  data_format = "%2.2f";
-  var m = MatrixRandom.uniform(row: 5, column: 5, lb: 0, ub: 1, seed: 42)..visible();
-  print(m.count((x) => x < 0.5, dim: 0));
-  print((m.count((x) => x < 0.5, dim: 0) as List<int>).sum);
-  print(m.count((x) => x < 0.5, dim: 1));
-  print((m.count((x) => x < 0.5, dim: 1) as List<int>).sum);
-  print(m.count((x) => x < 0.5, dim: 2));
-}
-```
-### output
-```text
-[
- [ 0.15  0.60  0.66  0.22  0.79]
- [ 0.16  0.41  0.17  0.21  0.57]
- [ 0.83  0.35  0.89  0.12  0.55]
- [ 0.89  0.56  0.43  0.68  0.78]
- [ 0.78  0.20  0.70  0.36  0.48]
-]
-[2, 4, 2, 1, 3]
-12
-[2, 3, 2, 4, 1]
-12
-12
-```
-[下一篇：纯数学工具](math.md)
+[下一篇：集合模拟](geometry.md)
