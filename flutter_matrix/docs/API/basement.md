@@ -1450,4 +1450,4 @@ main(){
  [ 25.00000   9.00000   0.00000  Infinity]
 ]
 ```
-[下一篇：辅助](functools.md)
+[下一篇：函数工具](functools.md)
