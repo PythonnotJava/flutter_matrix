@@ -3,8 +3,8 @@ import 'dart:core';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
-import 'package:flutter_matrix/unrelated_util.dart';
-import 'package:flutter_matrix/complex.dart' show Complex;
+import 'unrelated_util.dart';
+import 'complex.dart';
 
 part 'matrix_base.dart';
 part 'matrix_math.dart';

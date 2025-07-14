@@ -1,3 +1,10 @@
+# [1.0.2] -2025-07-14
+<p style="text-indent: 2em;">
+Fixed a problem with the file structure.
+</p>  
+
+--- 
+
 # [1.0.1] -2025-07-14
 <p style="text-indent: 2em;">
 Fixed a problem with the file structure.

@@ -14,8 +14,9 @@
       "languageVersion": "3.0"
     }
   ],
-  "generated": "2025-07-14T08:35:12.287092Z",
   "generator": "pub",
-  "generatorVersion": "3.6.0-255.0.dev",
+  "generatorVersion": "3.8.1",
+  "flutterRoot": "file:///D:/SDK/Flutter",
+  "flutterVersion": "3.32.5",
   "pubCache": "file:///C:/Users/25654/AppData/Local/Pub/Cache"
 }
