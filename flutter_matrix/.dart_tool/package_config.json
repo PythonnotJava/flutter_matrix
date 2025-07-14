@@ -3,7 +3,7 @@
   "packages": [
     {
       "name": "collection",
-      "rootUri": "file:///C:/Users/20281/AppData/Local/Pub/Cache/hosted/pub.dev/collection-1.19.1",
+      "rootUri": "file:///C:/Users/25654/AppData/Local/Pub/Cache/hosted/pub.flutter-io.cn/collection-1.19.1",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
@@ -14,7 +14,8 @@
       "languageVersion": "3.0"
     }
   ],
+  "generated": "2025-07-14T02:23:50.993052Z",
   "generator": "pub",
-  "generatorVersion": "3.8.1",
-  "pubCache": "file:///C:/Users/20281/AppData/Local/Pub/Cache"
+  "generatorVersion": "3.6.0-255.0.dev",
+  "pubCache": "file:///C:/Users/25654/AppData/Local/Pub/Cache"
 }
