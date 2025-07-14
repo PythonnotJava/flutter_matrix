@@ -1,7 +1,7 @@
 import 'dart:typed_data' show Float64x2;
 import 'dart:math' as math show cos, sin, sqrt, atan2, exp, Point;
 
-import 'package:flutter_matrix/unrelated_util.dart' show cosh, sinh;
+import 'unrelated_util.dart' show cosh, sinh;
 
 /// Define basic operations on complex numbers.
 /// For more information, please see https://oi-wiki.org/math/complex/.
