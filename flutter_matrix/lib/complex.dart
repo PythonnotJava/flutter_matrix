@@ -51,7 +51,7 @@ class Complex extends Object {
   @override
   int get hashCode => Object.hash(real, imaginary);
 
-  Complex _abstract_operator(bool add_mode, Object other) {
+  Complex _abstractOperator(bool add_mode, Object other) {
     final double Function(double, double) func =
         add_mode ? (x, y) => x + y : (x, y) => x - y;
     if (other is num) {
@@ -67,8 +67,8 @@ class Complex extends Object {
     }
   }
 
-  Complex operator +(Object other) => _abstract_operator(true, other);
-  Complex operator -(Object other) => _abstract_operator(false, other);
+  Complex operator +(Object other) => _abstractOperator(true, other);
+  Complex operator -(Object other) => _abstractOperator(false, other);
 
   Complex operator /(Object other) {
     if (other is num) {
