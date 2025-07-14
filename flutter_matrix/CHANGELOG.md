@@ -1,3 +1,10 @@
+# [1.0.1] -2025-07-14
+<p style="text-indent: 2em;">
+Fixed a problem with the file structure.
+</p>  
+
+--- 
+
 # [1.0.0] -2025-07-14
 - Optimized the matrix implementation structure, separated logic from packaging.
 - Added some new methods, optimized some code logic.
