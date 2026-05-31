@@ -133,7 +133,21 @@ class Complex extends Object {
       );
 
   /// Tan.
-  Complex get tan => sin / cos;
+  Complex get tan {
+    final sr = math.sin(real);
+    final cr = math.cos(real);
+    final shi = sinh(imaginary);
+    final chi = cosh(imaginary);
+    final numR = sr * chi;
+    final numI = cr * shi;
+    final denR = cr * chi;
+    final denI = -sr * shi;
+    final denom = denR * denR + denI * denI;
+    return Complex(
+      real: (numR * denR + numI * denI) / denom,
+      imaginary: (numI * denR - numR * denI) / denom,
+    );
+  }
 
   Complex get deepcopy => Complex(real: real, imaginary: imaginary);
 

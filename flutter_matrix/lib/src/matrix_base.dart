@@ -19,6 +19,18 @@ void registerSubClassFromListConstructor(
   _subClassFromListConstructor[type] = fromListConstructor;
 }
 
+FromListConstructor<T> _resolveFromList<T extends MatrixBase<T>>() {
+  final ctor = _subClassFromListConstructor[T];
+  if (ctor == null) {
+    throw StateError(
+      'Subclass "$T" is not registered. '
+          'Call registerSubClassFromListConstructor($T, ${T}.fromList) '
+          'before using MatrixBase generic constructors.',
+    );
+  }
+  return ctor as FromListConstructor<T>;
+}
+
 /// MatrixBase is the matrix abstract base class,
 /// which has built-in basic matrix operations and uses two-bit floating-point arrays for data storage.
 abstract class MatrixBase<T extends MatrixBase<T>> {
@@ -26,12 +38,13 @@ abstract class MatrixBase<T extends MatrixBase<T>> {
   late List<int> shape;
 
   /// Any subclass that can be instantiated must implement this method.
+  // ignore: unused_element_parameter
   T _fromList(List<List<double>> data, {int? known_row, int? known_column});
 
   /// Fill with specified [number].
   static T fill<T extends MatrixBase<T>>(
       {required double number, required int row, required int column}) {
-    final fromList = _subClassFromListConstructor[T] as FromListConstructor<T>;
+    final fromList = _resolveFromList<T>();
     return fromList(
         MatrixExtension.fill(number: number, row: row, column: column),
         known_row: row,
@@ -41,7 +54,7 @@ abstract class MatrixBase<T extends MatrixBase<T>> {
   /// Starting from [start], generate a matrix with an interval of 1.
   static T arrange<T extends MatrixBase<T>>(
       {double start = 0.0, required int row, required int column}) {
-    final fromList = _subClassFromListConstructor[T] as FromListConstructor<T>;
+    final fromList = _resolveFromList<T>();
     return fromList(
         MatrixExtension.arrange(row: row, column: column, start: start),
         known_row: row,
@@ -56,7 +69,7 @@ abstract class MatrixBase<T extends MatrixBase<T>> {
       bool keep = true,
       required int row,
       required int column}) {
-    final fromList = _subClassFromListConstructor[T] as FromListConstructor<T>;
+    final fromList = _resolveFromList<T>();
     return fromList(
         MatrixExtension.linspace(
             start: start, end: end, row: row, column: column, keep: keep),
@@ -66,7 +79,7 @@ abstract class MatrixBase<T extends MatrixBase<T>> {
 
   /// Deep copy a MatrixBase subclass to construct the matrix.
   static T deepCopy<T extends MatrixBase<T>>(MatrixBase other) {
-    final fromList = _subClassFromListConstructor[T] as FromListConstructor<T>;
+    final fromList = _resolveFromList<T>();
     var [row, column] = other.shape;
     return fromList(other.self.deepcopy, known_row: row, known_column: column);
   }
@@ -74,7 +87,7 @@ abstract class MatrixBase<T extends MatrixBase<T>> {
   /// Broadcast multiple matrices, starting from the last dimension,
   /// each dimension is either equal or one of them is 1, otherwise the broadcast fails.
   static List<T> broadcast<T extends MatrixBase<T>>(List<T> mts) {
-    final fromList = _subClassFromListConstructor[T] as FromListConstructor<T>;
+    final fromList = _resolveFromList<T>();
     final ls = [for (var mt in mts) mt.self];
     final bs = MatrixExtension.broadcast(ls);
     return [for (var list in bs) fromList(list)];
@@ -86,7 +99,7 @@ abstract class MatrixBase<T extends MatrixBase<T>> {
       double step = 1.0,
       required int row,
       required int column}) {
-    final fromList = _subClassFromListConstructor[T] as FromListConstructor<T>;
+    final fromList = _resolveFromList<T>();
     return fromList(
         MatrixExtension.range(
             row: row, column: column, start: start, step: step),
@@ -96,14 +109,14 @@ abstract class MatrixBase<T extends MatrixBase<T>> {
 
   /// Generates the n-th order identity matrix.
   static T E<T extends MatrixBase<T>>({required int n}) {
-    final fromList = _subClassFromListConstructor[T] as FromListConstructor<T>;
+    final fromList = _resolveFromList<T>();
     return fromList(MatrixExtension.E(n: n), known_row: n, known_column: n);
   }
 
   /// Generates a quasi-identity matrix, depending on the minimum values in the row and column.
   static T ELike<T extends MatrixBase<T>>(
       {required int row, required int column}) {
-    final fromList = _subClassFromListConstructor[T] as FromListConstructor<T>;
+    final fromList = _resolveFromList<T>();
     return fromList(MatrixExtension.ELike(row: row, column: column),
         known_row: row, known_column: column);
   }
@@ -118,7 +131,7 @@ abstract class MatrixBase<T extends MatrixBase<T>> {
       {int mode = 0,
       double number = double.nan,
       double Function(List<double> list)? func}) {
-    final fromList = _subClassFromListConstructor[T] as FromListConstructor<T>;
+    final fromList = _resolveFromList<T>();
     data.align(mode: mode, number: number, func: func);
     var [row, column] = data.shape;
     return fromList(data, known_row: row, known_column: column);

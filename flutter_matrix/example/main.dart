@@ -5,7 +5,7 @@ main(){
   var t = MatrixBase.linspace<Matrix>(
       row: 10,
       column: 10,
-      start: 0,
+      start: 1,
       end: 100,
       keep: true
   );

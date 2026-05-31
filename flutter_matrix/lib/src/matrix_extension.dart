@@ -28,9 +28,11 @@ extension MatrixExtension on List<List<double>> {
       math.pow(base, exponent).toDouble();
 
   static double Function(double, double) _mathBasementDouble(int mode) {
-    final double Function(double, double) func =
-        switch (mode) { 0 => _powDouble, 1 => math.atan2, _ => _powDouble };
-    return func;
+    return switch (mode) {
+      0 => _powDouble,
+      1 => math.atan2,
+      _ => throw ArgumentError('Unknown math basement double mode: $mode'),
+    };
   }
 
   List<List<double>> _mathBasementDoubleRealize(int mode,
@@ -82,7 +84,7 @@ extension MatrixExtension on List<List<double>> {
       3 => (x, y) => x / y,
       4 => (x, y) => (x ~/ y).toDouble(), // non-support
       5 => (x, y) => (x % y).toDouble(), // non-support
-      _ => (x, y) => double.nan
+      _ => throw ArgumentError('Unknown operator mode: $mode'),
     };
     return func;
   }
@@ -129,31 +131,36 @@ extension MatrixExtension on List<List<double>> {
       {required List<List<double>> mt_this, required List<int> mt_shape}) {
     var [row, column] = mt_shape;
     assert(row == column);
+    final n = row;
+    final matrixcpy = mt_this.deepcopy;
     double detValue = 1.0;
-    int n = row;
-    final matrixcpy =
-        mt_this.map((row_list) => row_list.map((e) => e).toList()).toList();
 
     for (int i = 0; i < n; i++) {
       int max_row = i;
+      double max_abs = matrixcpy[i][i].abs();
       for (int k = i + 1; k < n; k++) {
-        if ((matrixcpy[k][i]).abs() > (matrixcpy[max_row][i]).abs()) {
+        final v = matrixcpy[k][i].abs();
+        if (v > max_abs) {
+          max_abs = v;
           max_row = k;
         }
       }
-      if (matrixcpy[max_row][i] == 0) {
-        return 0;
+      if (max_abs <= tolerance_round) {
+        return 0.0;
       }
-
       if (max_row != i) {
         matrixcpy.swap(max_row, i);
         detValue = -detValue;
       }
-      detValue *= matrixcpy[i][i];
+      final pivot = matrixcpy[i][i];
+      detValue *= pivot;
       for (int k = i + 1; k < n; k++) {
-        double factor = matrixcpy[k][i] / matrixcpy[i][i];
+        final factor = matrixcpy[k][i] / pivot;
+        if (factor == 0.0) continue;
+        final rowI = matrixcpy[i];
+        final rowK = matrixcpy[k];
         for (int j = i; j < n; j++) {
-          matrixcpy[k][j] -= factor * matrixcpy[i][j];
+          rowK[j] -= factor * rowI[j];
         }
       }
     }
@@ -210,7 +217,7 @@ extension MatrixExtension on List<List<double>> {
   }
 
   static double Function(double) _mathBasementSingle(int mode) {
-    final double Function(double) func = switch (mode) {
+    return switch (mode) {
       0 => math.sin,
       1 => math.cos,
       2 => math.tan,
@@ -235,9 +242,8 @@ extension MatrixExtension on List<List<double>> {
       21 => round,
       22 => degree,
       23 => radian,
-      _ => (x) => x
+      _ => throw ArgumentError('Unknown single math mode: $mode'),
     };
-    return func;
   }
 
   String prettyPrint({String? format, String color = '#ffd700'}) {
@@ -313,13 +319,27 @@ extension MatrixExtension on List<List<double>> {
   bool equalTo(Object other) {
     if (identical(this, other)) return true;
     if (other is List<List<double>>) {
-      assert(hasSameShape(other));
-      return _deepEq.equals(this, other);
+      if (!hasSameShape(other)) return false;
+      final rows = length;
+      for (int r = 0; r < rows; r++) {
+        final a = this[r];
+        final b = other[r];
+        if (a.length != b.length) return false;
+        for (int c = 0; c < a.length; c++) {
+          if (a[c] != b[c]) return false;
+        }
+      }
+      return true;
     } else if (other is num) {
-      return !(anyExtension((x) => x != other, dim: -1) as bool);
-    } else {
-      throw UnsupportedError('The operation is not supported');
+      final d = other.toDouble();
+      for (final row in this) {
+        for (final v in row) {
+          if (v != d) return false;
+        }
+      }
+      return true;
     }
+    return false;
   }
 
   bool containExtension(double element) {
@@ -386,13 +406,14 @@ extension MatrixExtension on List<List<double>> {
 
   void append(List<double> data, {bool horizontal = true}) {
     if (horizontal) {
-      add([...data]);
-      shape[0] += 1;
+      assert(isEmpty || data.length == this[0].length);
+      add(List<double>.from(data));
     } else {
-      for (int r = 0; r < shape[0]; r++) {
+      final rows = length;
+      assert(data.length == rows);
+      for (int r = 0; r < rows; r++) {
         this[r].add(data[r]);
       }
-      shape[1] += 1;
     }
   }
 
@@ -409,7 +430,7 @@ extension MatrixExtension on List<List<double>> {
   }
 
   bool hasSameShape(List<List<double>> other) =>
-      shape[0] == other.shape[0] && shape[1] == other.shape[1];
+      length == other.length && (isEmpty || this[0].length == other[0].length);
 
   static List<List<double>> constructor(List<List<num>> data) =>
       List.generate(data.length, (r) {
@@ -481,16 +502,21 @@ extension MatrixExtension on List<List<double>> {
   }
 
   List<List<double>> reshape({required int row, required int column}) {
-    assert(row > 0 && row * column == size);
-    var origin_column = shape[1];
-    int index = 0;
-    return List.generate(
-        row,
-        (_) => List.generate(column, (_) {
-              var v = this[index ~/ origin_column][index % origin_column];
-              index++;
-              return v;
-            }));
+    assert(row > 0 && column > 0 && row * column == size);
+    var [oRow, oCol] = shape;
+    int sr = 0, sc = 0;
+    final out = List.generate(row, (_) {
+      return List<double>.generate(column, (_) {
+        final v = this[sr][sc];
+        sc++;
+        if (sc == oCol) {
+          sc = 0;
+          sr++;
+        }
+        return v;
+      }, growable: true);
+    }, growable: true);
+    return out;
   }
 
   List<List<double>> resize(
@@ -585,33 +611,27 @@ extension MatrixExtension on List<List<double>> {
 
   void sortExtension({bool reverse = false, int dim = -1}) {
     var [row, column] = shape;
+    final cmp = reverse
+        ? (double a, double b) => b.compareTo(a)
+        : (double a, double b) => a.compareTo(b);
+
     if (dim == 0) {
-      for (var list in this) {
-        reverse
-            ? list.sort((a, b) => b.compareTo(a))
-            : list.sort((a, b) => a.compareTo(b));
+      for (final list in this) {
+        list.sort(cmp);
       }
     } else if (dim == 1) {
-      final transposed = transpose;
-      for (int i = 0; i < column; i++) {
-        reverse
-            ? transposed[i].sort((a, b) => b.compareTo(a))
-            : transposed[i].sort((a, b) => a.compareTo(b));
-      }
-      for (int r = 0; r < row; r++) {
-        for (int c = 0; c < column; c++) {
-          this[r][c] = transposed[c][r];
-        }
+      final buf = List<double>.filled(row, 0.0, growable: false);
+      for (int c = 0; c < column; c++) {
+        for (int r = 0; r < row; r++) buf[r] = this[r][c];
+        buf.sort(cmp);
+        for (int r = 0; r < row; r++) this[r][c] = buf[r];
       }
     } else {
-      final data = flattened;
-      reverse
-          ? data.sort((a, b) => b.compareTo(a))
-          : data.sort((a, b) => a.compareTo(b));
+      final data = flattened..sort(cmp);
+      int i = 0;
       for (int r = 0; r < row; r++) {
-        for (int c = 0; c < column; c++) {
-          this[r][c] = data[r * column + c];
-        }
+        final dst = this[r];
+        for (int c = 0; c < column; c++) dst[c] = data[i++];
       }
     }
   }
@@ -639,7 +659,12 @@ extension MatrixExtension on List<List<double>> {
       required int column}) {
     assert(row > 0 && column > 0);
     final size = row * column;
-    final step = keep ? (end - start) / (size - 1) : (end - start) / size;
+    final double step;
+    if (size == 1) {
+      step = 0.0;
+    } else {
+      step = keep ? (end - start) / (size - 1) : (end - start) / size;
+    }
     int index = 0;
     return List.generate(
         row, (_) => List.generate(column, (_) => start + index++ * step));
@@ -869,33 +894,54 @@ extension MatrixExtension on List<List<double>> {
     });
   }
 
-  Object sumExtension({int dim = -1}) {
-    if (dim == 0) {
-      return reduceExtension((x, y) => x + y, dim: 0);
-    } else if (dim == 1) {
-      return reduceExtension((x, y) => x + y, dim: 1);
-    } else {
-      return reduceExtension((x, y) => x + y, dim: -1);
-    }
-  }
+  Object sumExtension({int dim = -1}) =>
+      reduceExtension((x, y) => x + y, dim: dim);
 
   Object minExtension({int dim = -1}) {
+    var [row, column] = shape;
     if (dim == 0) {
-      return List.generate(shape[0], (r) => this[r].min);
+      return List.generate(row, (r) => this[r].min);
     } else if (dim == 1) {
-      return List.generate(shape[1], (c) => column_(c).min);
+      return List.generate(column, (c) {
+        double v = this[0][c];
+        for (int r = 1; r < row; r++) {
+          if (this[r][c] < v) v = this[r][c];
+        }
+        return v;
+      });
     } else {
-      return List.generate(shape[0], (r) => this[r].min).min;
+      double v = this[0][0];
+      for (int r = 0; r < row; r++) {
+        final src = this[r];
+        for (int c = 0; c < column; c++) {
+          if (src[c] < v) v = src[c];
+        }
+      }
+      return v;
     }
   }
 
   Object maxExtension({int dim = -1}) {
+    var [row, column] = shape;
     if (dim == 0) {
-      return List.generate(shape[0], (r) => this[r].max);
+      return List.generate(row, (r) => this[r].max);
     } else if (dim == 1) {
-      return List.generate(shape[1], (c) => column_(c).max);
+      return List.generate(column, (c) {
+        double v = this[0][c];
+        for (int r = 1; r < row; r++) {
+          if (this[r][c] > v) v = this[r][c];
+        }
+        return v;
+      });
     } else {
-      return List.generate(shape[0], (r) => this[r].max).max;
+      double v = this[0][0];
+      for (int r = 0; r < row; r++) {
+        final src = this[r];
+        for (int c = 0; c < column; c++) {
+          if (src[c] > v) v = src[c];
+        }
+      }
+      return v;
     }
   }
 
@@ -920,6 +966,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Do not handle NaN.
   Object argmin({int dim = -1}) => _argMinMax(true, dim: dim);
   Object argmax({int dim = -1}) => _argMinMax(false, dim: dim);
 
@@ -968,8 +1015,16 @@ extension MatrixExtension on List<List<double>> {
   }
 
   List<List<double>> fftComplex() {
+    bool _isPowerOfTwo(int n) => n >= 1 && (n & (n - 1)) == 0;
     var [row, column] = shape;
-    assert((row & (row - 1) == 0) && row >= 2 && column == 2);
+    if (column != 2) {
+      throw ArgumentError(
+          'fftComplex expects [real, imag] rows (column == 2), got column=$column');
+    }
+    if (!_isPowerOfTwo(row) || row < 2) {
+      throw ArgumentError(
+          'fftComplex requires row to be a power of two and >= 2, got row=$row');
+    }
     return _fft(mt_this: this, mt_shape: shape)
         .map((complex) => complex.toList)
         .toList();
@@ -1066,25 +1121,37 @@ extension MatrixExtension on List<List<double>> {
     var [row, column] = shape;
     if (dim == 0) {
       return List.generate(row, (r) {
-        final list = element == null ? this[r] : [element, ...this[r]];
-        return list.reduce(condition);
+        final src = this[r];
+        if (src.isEmpty) {
+          if (element == null) {
+            throw StateError('reduce on empty row without element');
+          }
+          return element;
+        }
+        double acc = element ?? src[0];
+        final start = element == null ? 1 : 0;
+        for (int i = start; i < src.length; i++) acc = condition(acc, src[i]);
+        return acc;
       });
     } else if (dim == 1) {
       return List.generate(column, (c) {
-        final list = element == null ? column_(c) : [element, ...column_(c)];
-        return list.reduce(condition);
+        double acc = element ?? this[0][c];
+        final start = element == null ? 1 : 0;
+        for (int r = start; r < row; r++) acc = condition(acc, this[r][c]);
+        return acc;
       });
     } else {
-      if (element == null) {
-        return List.generate(row, (r) => this[r].reduce(condition))
-            .reduce(condition);
+      double? acc = element;
+      for (int r = 0; r < row; r++) {
+        final src = this[r];
+        for (int c = 0; c < column; c++) {
+          acc = acc == null ? src[c] : condition(acc, src[c]);
+        }
       }
-      var v = this[0][0];
-      this[0][0] = condition(element, v);
-      final result = List.generate(row, (r) => this[r].reduce(condition))
-          .reduce(condition);
-      this[0][0] = v;
-      return result;
+      if (acc == null) {
+        throw StateError('reduce on empty matrix without element');
+      }
+      return acc;
     }
   }
 
@@ -1099,13 +1166,13 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
-  Object allExtension(bool Function(double) conditon, {int dim = -1}) {
+  Object allExtension(bool Function(double) condition, {int dim = -1}) {
     if (dim == 0) {
-      return List.generate(shape[0], (r) => this[r].every(conditon));
+      return List.generate(shape[0], (r) => this[r].every(condition));
     } else if (dim == 1) {
-      return List.generate(shape[1], (c) => column_(c).every(conditon));
+      return List.generate(shape[1], (c) => column_(c).every(condition));
     } else {
-      return List.generate(shape[0], (r) => this[r].every(conditon))
+      return List.generate(shape[0], (r) => this[r].every(condition))
           .every((e) => e);
     }
   }
@@ -1256,16 +1323,25 @@ extension MatrixExtension on List<List<double>> {
   List<List<double>> product({required List<List<double>> other}) {
     var [row, column] = shape;
     var [other_row, other_column] = other.shape;
-    assert(column == other_row);
+    assert(
+        column == other_row, 'product: shape mismatch $shape x ${other.shape}');
+
     final data = List.generate(
-        row, (i) => List.filled(other_column, 0.0, growable: true));
-    for (var i = 0; i < row; i++) {
-      for (var j = 0; j < other_column; j++) {
-        var sum = 0.0;
-        for (var k = 0; k < column; k++) {
-          sum += this[i][k] * other[k][j];
+      row,
+      (_) => List<double>.filled(other_column, 0.0, growable: true),
+      growable: true,
+    );
+
+    for (int i = 0; i < row; i++) {
+      final rowI = this[i];
+      final outI = data[i];
+      for (int k = 0; k < column; k++) {
+        final a = rowI[k];
+        if (a == 0.0) continue;
+        final rowK = other[k];
+        for (int j = 0; j < other_column; j++) {
+          outI[j] += a * rowK[j];
         }
-        data[i][j] = sum;
       }
     }
     return data;
@@ -1309,17 +1385,61 @@ extension MatrixExtension on List<List<double>> {
   }
 
   List<List<double>> get inverse {
-    final adj = adjugate;
-    int n = shape[0];
-    double detV = det;
-    assert(detV.abs() > tolerance_round.abs());
+    var [row, column] = shape;
+    assert(row == column, 'inverse requires a square matrix');
+    final n = row;
 
+    final a = List.generate(
+      n,
+      (r) => List<double>.filled(2 * n, 0.0, growable: false),
+      growable: false,
+    );
     for (int r = 0; r < n; r++) {
-      for (int c = 0; c < n; c++) {
-        adj[r][c] /= detV;
+      final src = this[r];
+      final dst = a[r];
+      for (int c = 0; c < n; c++) dst[c] = src[c];
+      dst[n + r] = 1.0;
+    }
+
+    for (int i = 0; i < n; i++) {
+      int pivot = i;
+      double maxAbs = a[i][i].abs();
+      for (int k = i + 1; k < n; k++) {
+        final v = a[k][i].abs();
+        if (v > maxAbs) {
+          maxAbs = v;
+          pivot = k;
+        }
+      }
+      if (maxAbs <= tolerance_round) {
+        throw StateError('Matrix is singular (pivot ~ 0 at row $i)');
+      }
+      if (pivot != i) {
+        final tmp = a[pivot];
+        a[pivot] = a[i];
+        a[i] = tmp;
+      }
+
+      final inv = 1.0 / a[i][i];
+      final rowI = a[i];
+      for (int c = 0; c < 2 * n; c++) rowI[c] *= inv;
+
+      for (int r = 0; r < n; r++) {
+        if (r == i) continue;
+        final factor = a[r][i];
+        if (factor == 0.0) continue;
+        final rowR = a[r];
+        for (int c = 0; c < 2 * n; c++) {
+          rowR[c] -= factor * rowI[c];
+        }
       }
     }
-    return adj;
+
+    return List.generate(
+      n,
+      (r) => List<double>.generate(n, (c) => a[r][n + c], growable: true),
+      growable: true,
+    );
   }
 
   int get rank {
@@ -1418,22 +1538,26 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
-  static List<List<double>> ellipse_edge(
-      {required double a,
-      required double b,
-      required int size,
-      int? seed,
-      double? bias,
-      bool uniform = true,
-      List<double> vec = OriginVector}) {
-    assert(a > 0 && b > 0);
-    return MatrixExtension.custom_curve(
-        xfunc: (t) => a * math.cos(t),
-        yfunc: (t) => b * math.sin(t),
-        theta_from: 0.0,
-        theta_to: 2.0 * math.pi,
-        size: size,
-        vec: vec);
+  static List<List<double>> ellipse_edge({
+    required double a,
+    required double b,
+    required int size,
+    int? seed,
+    double? bias,
+    bool uniform = true,
+    List<double> vec = OriginVector,
+  }) {
+    return custom_curve(
+      xfunc: (t) => a * math.cos(t),
+      yfunc: (t) => b * math.sin(t),
+      theta_from: 0,
+      theta_to: 2 * math.pi,
+      size: size,
+      seed: seed,
+      bias: bias,
+      uniform: uniform,
+      vec: vec,
+    );
   }
 
   static List<List<double>> circle_edge(
@@ -1621,8 +1745,121 @@ extension MatrixExtension on List<List<double>> {
     return projections;
   }
 
+  /// ----------------------------------------3D Transforms--------------------------
+
+  /// Rotate points (size×3) around X, Y, Z axes by [rx], [ry], [rz] radians (intrinsic ZYX order).
+  /// Pass [radian]=false to use degrees.
+  List<List<double>> rotateTransform3d({
+    double rx = 0.0,
+    double ry = 0.0,
+    double rz = 0.0,
+    bool radian = true,
+  }) {
+    assert(shape[1] == 3, 'rotateTransform3d requires shape[1] == 3');
+    if (!radian) {
+      const toRad = math.pi / 180.0;
+      rx *= toRad;
+      ry *= toRad;
+      rz *= toRad;
+    }
+    final cx = math.cos(rx), sx = math.sin(rx);
+    final cy = math.cos(ry), sy = math.sin(ry);
+    final cz = math.cos(rz), sz = math.sin(rz);
+
+    // Combined rotation matrix R = Rz * Ry * Rx (intrinsic ZYX / extrinsic XYZ)
+    final r00 = cy * cz;
+    final r01 = cz * sx * sy - cx * sz;
+    final r02 = cx * cz * sy + sx * sz;
+    final r10 = cy * sz;
+    final r11 = cx * cz + sx * sy * sz;
+    final r12 = cx * sy * sz - cz * sx;
+    final r20 = -sy;
+    final r21 = cy * sx;
+    final r22 = cx * cy;
+
+    return map((p) {
+      final x = p[0], y = p[1], z = p[2];
+      return <double>[
+        r00 * x + r01 * y + r02 * z,
+        r10 * x + r11 * y + r12 * z,
+        r20 * x + r21 * y + r22 * z,
+      ];
+    }).toList();
+  }
+
+  /// Scale points (size×3) independently along each axis.
+  List<List<double>> scaleTransform3d({
+    required double sx,
+    required double sy,
+    required double sz,
+  }) {
+    assert(shape[1] == 3, 'scaleTransform3d requires shape[1] == 3');
+    return map((p) => <double>[p[0] * sx, p[1] * sy, p[2] * sz]).toList();
+  }
+
+  /// Translate points (size×3) by [tx], [ty], [tz].
+  /// Input must be size×3; output is also size×3 (no homogeneous coords needed for pure translation).
+  List<List<double>> translateTransform3d({
+    required double tx,
+    required double ty,
+    required double tz,
+  }) {
+    assert(shape[1] == 3, 'translateTransform3d requires shape[1] == 3');
+    return map((p) => <double>[p[0] + tx, p[1] + ty, p[2] + tz]).toList();
+  }
+
+  /// Perspective projection of points (size×3) onto the near plane.
+  ///
+  /// [fov]   vertical field of view in radians (pass [radian]=false for degrees).
+  /// [aspect] width / height ratio of the viewport (default 1.0).
+  /// [near]  near clipping distance (> 0).
+  /// [far]   far clipping distance (> near).
+  ///
+  /// Returns size×3: (NDC_x, NDC_y, NDC_z) in [-1,1]³.
+  /// Points behind the near plane or beyond far are still transformed;
+  /// clip them yourself if needed.
+  List<List<double>> perspectiveProject({
+    required double fov,
+    required double near,
+    required double far,
+    double aspect = 1.0,
+    bool radian = true,
+  }) {
+    assert(shape[1] == 3, 'perspectiveProject requires shape[1] == 3');
+    assert(near > 0 && far > near, 'near must be > 0 and far > near');
+    if (!radian) fov = fov * (math.pi / 180.0);
+
+    final f = 1.0 / math.tan(fov / 2.0);   // focal length
+    final rangeInv = 1.0 / (near - far);
+
+    // Standard OpenGL-style perspective matrix coefficients (column-major, but
+    // we apply it row-by-row so the math is the same):
+    //   m00 = f/aspect,  m11 = f
+    //   m22 = (far+near)*rangeInv,  m23 = 2*far*near*rangeInv
+    //   m32 = -1  (perspective divide)
+    final m00 = f / aspect;
+    final m11 = f;
+    final m22 = (far + near) * rangeInv;
+    final m23 = 2.0 * far * near * rangeInv;
+
+    return map((p) {
+      final x = p[0], y = p[1], z = p[2];
+      final w = -z; // perspective divide factor (camera looks down -Z)
+      if (w.abs() <= tolerance_round) {
+        return <double>[double.nan, double.nan, double.nan];
+      }
+      return <double>[
+        (m00 * x) / w,
+        (m11 * y) / w,
+        (m22 * z + m23) / w,
+      ];
+    }).toList();
+  }
+
   /// -------------------------------------------------------------------------------
   /// ----------------------------------------ML------------------------------------
+
+  /// Without performing exp(x - max(x)), a large x overflows to inf → resulting in NaN.
   List<List<double>> Softmax({int dim = -1}) {
     var [row, column] = shape;
     late List<List<double>> ls;

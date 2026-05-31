@@ -1,3 +1,9 @@
+
+# [1.0.3] -2025-07-14
+- The implementation of some methods has been optimized.
+- Added some new methods.
+
+
 # [1.0.2] -2025-07-14
 <p style="text-indent: 2em;">
 Fixed a problem with the file structure.

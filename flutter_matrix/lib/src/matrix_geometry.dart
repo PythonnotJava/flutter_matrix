@@ -246,4 +246,44 @@ mixin MatrixGeometry<T extends MatrixBase<T>> on MatrixBase<T> {
         known_row: target.length,
         known_column: 3);
   }
+
+  /// Rotate 3-D points (size×3) around X, Y, Z axes.
+  /// [rx], [ry], [rz] are rotation angles; [radian]=false means degrees.
+  /// Rotation order: intrinsic ZYX (equivalent to extrinsic XYZ).
+  T rotateTransform3d({
+    double rx = 0.0,
+    double ry = 0.0,
+    double rz = 0.0,
+    bool radian = true,
+  }) =>
+      _fromList(self.rotateTransform3d(rx: rx, ry: ry, rz: rz, radian: radian));
+
+  /// Scale 3-D points (size×3) independently along each axis.
+  T scaleTransform3d({
+    required double sx,
+    required double sy,
+    required double sz,
+  }) =>
+      _fromList(self.scaleTransform3d(sx: sx, sy: sy, sz: sz));
+
+  /// Translate 3-D points (size×3) by (tx, ty, tz).
+  T translateTransform3d({
+    required double tx,
+    required double ty,
+    required double tz,
+  }) =>
+      _fromList(self.translateTransform3d(tx: tx, ty: ty, tz: tz));
+
+  /// Perspective projection of 3-D points (size×3) onto the near plane.
+  /// Returns size×3 NDC coordinates in [-1,1]³.
+  /// [fov] is the vertical field of view; [radian]=false means degrees.
+  T perspectiveProject({
+    required double fov,
+    required double near,
+    required double far,
+    double aspect = 1.0,
+    bool radian = true,
+  }) =>
+      _fromList(self.perspectiveProject(
+          fov: fov, near: near, far: far, aspect: aspect, radian: radian));
 }

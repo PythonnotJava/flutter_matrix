@@ -68,7 +68,7 @@ class Range {
         closure_right = end.isInfinite ? false : closure_right;
 
   @override
-  bool operator == (Object other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) {
       return true;
     } else if (other is Range) {
@@ -89,7 +89,7 @@ class Range {
 
   @override
   String toString([bool map_like = false]) {
-    if (map_like){
+    if (map_like) {
       return "Range {\n"
           "\tstart: $start,\n"
           "\tend: $start,\n"
@@ -179,28 +179,35 @@ double radian(double x) => x * (math.pi / 180.0);
 /// Randomly select n data from a list of length m.
 /// m can be passed in selectively.
 /// [back] is true to indicate that it can be put back after each selection.
-List<T> choose<T>(
-    {required List<T> list,
-    required int n,
-    int? m,
-    bool back = false,
-    int? seed}) {
+List<T> choose<T>({
+  required List<T> list,
+  required int n,
+  int? m,
+  bool back = false,
+  int? seed,
+}) {
   assert(n > 0);
   assert(m == null || (m > 0 && m <= list.length));
   m ??= list.length;
   final random = math.Random(seed);
-  final result = <T>[];
+
   if (back) {
+    final result = <T>[];
     for (int i = 0; i < n; i++) {
-      final index = random.nextInt(m);
-      result.add(list[index]);
+      result.add(list[random.nextInt(m)]);
     }
-  } else {
-    assert(n <= m);
-    final indices = List<int>.generate(m, (i) => i)..shuffle(random);
-    result.addAll(indices.take(n).map((i) => list[i]));
+    return result;
   }
-  return result;
+
+  assert(n <= m);
+  final indices = List<int>.generate(m, (i) => i, growable: false);
+  for (int i = 0; i < n; i++) {
+    final j = i + random.nextInt(m - i);
+    final tmp = indices[i];
+    indices[i] = indices[j];
+    indices[j] = tmp;
+  }
+  return [for (int i = 0; i < n; i++) list[indices[i]]];
 }
 
 /// Calculate the number of combinations: C(n, k) = n! / (k! * (n-k)!)
@@ -216,15 +223,16 @@ int binomialCoefficient(int n, int k) {
 }
 
 /// Adaptive Simpson algorithm is used to solve the integral.
-double _simpson(double Function(double x) f, double a, double b) => (f(a) + 4 * f((a + b) / 2) + f(b)) * (b - a) / 6;
+double _simpson(double Function(double x) f, double a, double b) =>
+    (f(a) + 4 * f((a + b) / 2) + f(b)) * (b - a) / 6;
 double _adaptiveSimpson(
-    double Function(double x) f,
-    double a,
-    double b,
-    double eps,
-    double whole,
-    int depth,
-    ) {
+  double Function(double x) f,
+  double a,
+  double b,
+  double eps,
+  double whole,
+  int depth,
+) {
   double c = (a + b) / 2;
   double left = _simpson(f, a, c);
   double right = _simpson(f, c, b);
@@ -234,6 +242,7 @@ double _adaptiveSimpson(
   return _adaptiveSimpson(f, a, c, eps / 2, left, depth - 1) +
       _adaptiveSimpson(f, c, b, eps / 2, right, depth - 1);
 }
+
 /// Adaptive Simpson algorithm is used to solve the integral.
 /// The parameters are as follows:
 ///  - [f]: integrand.
@@ -256,7 +265,7 @@ double adaptiveSimpson({
 /// A random generator class.
 /// Note that this class does not perform a legal range check on its parameters.
 @Alert('This class does not perform a legal range check on its parameters.')
-final class RandomGenerator{
+final class RandomGenerator {
   RandomGenerator._internal();
   static final RandomGenerator instance = RandomGenerator._internal();
 
@@ -275,12 +284,12 @@ final class RandomGenerator{
   }
 
   /// Uniform distribution.
-  double Uniformm(math.Random rd, {double lb = 0.0, double ub = 1.0}){
+  double Uniformm(math.Random rd, {double lb = 0.0, double ub = 1.0}) {
     return lb + (ub - lb) * rd.nextDouble();
   }
 
   /// Binomial Distribution.
-  int Binomial(math.Random rd, {required int n, required double p}){
+  int Binomial(math.Random rd, {required int n, required double p}) {
     int successCount = 0;
     for (int i = 0; i < n; i++) {
       if (rd.nextDouble() < p) {
@@ -295,7 +304,7 @@ final class RandomGenerator{
   /// If k independent random variables Z1, Z2, ..., Zk obey the standard normal distribution (mean 0, variance 1),
   /// then the sum of the squares of these k random variables obeys the chi-square distribution with k degrees of freedom.
   /// - Method 2: Directly generate according to the gamma distribution
-  double Chisquare(math.Random rd, {required int df}){
+  double Chisquare(math.Random rd, {required int df}) {
     double sum = 0.0;
     for (int i = 0; i < df; i++) {
       double z = StandardNormal(rd);
@@ -308,37 +317,39 @@ final class RandomGenerator{
   /// When solving the inverse function based on the cumulative distribution function,
   /// we get a term containing `ln(1-u)`, but `u` and `1-u` are standard uniform distributions,
   /// so we choose to use `u` instead of `1-u`.
-  double Exponential(math.Random rd, {required double lambda}){
+  double Exponential(math.Random rd, {required double lambda}) {
     double u = rd.nextDouble();
     return -math.log(u) / lambda;
   }
 
   /// F distribution.
-  double F(math.Random rd, {required int d1, required int d2}){
+  double F(math.Random rd, {required int d1, required int d2}) {
     return (Chisquare(rd, df: d1) / d1) / (Chisquare(rd, df: d2) / d2);
   }
 
   /// Gamma distribution.
   /// Method from : https://dl.acm.org/doi/10.1145/358407.358414
-  double Gamma(math.Random rd, {required double k, required double theta}){
-    if (k < 1){
-      return Gamma(rd, k: k + 1, theta: 1.0) * math.pow(rd.nextDouble(), 1.0 / k) * theta;
+  double Gamma(math.Random rd, {required double k, required double theta}) {
+    if (k < 1) {
+      return Gamma(rd, k: k + 1, theta: 1.0) *
+          math.pow(rd.nextDouble(), 1.0 / k) *
+          theta;
     }
     double d = k - 1.0 / 3.0;
     double c = 1.0 / math.sqrt(9.0 * d);
     double x, v, u;
-    while (true){
+    while (true) {
       x = StandardNormal(rd);
       v = 1.0 + c * x;
-      if (v <= 0.0){
+      if (v <= 0.0) {
         continue;
       }
       v = v * v * v;
       u = rd.nextDouble();
-      if (u <= 1.0 - 0.0331 * x * x * x * x){
+      if (u <= 1.0 - 0.0331 * x * x * x * x) {
         return d * v * theta;
       }
-      if (math.log(u) <= 0.5 * x * x + d * (1.0 - v + math.log(v))){
+      if (math.log(u) <= 0.5 * x * x + d * (1.0 - v + math.log(v))) {
         return d * v * theta;
       }
     }
@@ -348,13 +359,16 @@ final class RandomGenerator{
   /// When any shape parameter is non-integer,
   /// we use Cheng BB/BC method, specific source: https://dl.acm.org/doi/10.1145/359460.359482,
   /// otherwise we use two [Gamma] distribution sampling methods
-  double Beta(math.Random rd, {required double a, required double b}){
-    if (a == a.toInt() && b == b.toInt()){
+  double Beta(math.Random rd, {required double a, required double b}) {
+    if (a == a.toInt() && b == b.toInt()) {
       return Beta_by_Gamma2(rd, a0: a, b0: b);
-    }else {
-      return math.min(a, b) > 1 ? Beta_BB(rd, a0 : a, b0: b) : Beta_BC(rd, a0: a, b0: b);
+    } else {
+      return math.min(a, b) > 1
+          ? Beta_BB(rd, a0: a, b0: b)
+          : Beta_BC(rd, a0: a, b0: b);
     }
   }
+
   double Beta_BB(math.Random rd, {required double a0, required double b0}) {
     final a = math.min(a0, b0);
     final b = math.max(a0, b0);
@@ -381,6 +395,7 @@ final class RandomGenerator{
       }
     }
   }
+
   double Beta_BC(math.Random rd, {required double a0, required double b0}) {
     final a = math.max(a0, b0);
     final b = math.min(a0, b0);
@@ -404,7 +419,8 @@ final class RandomGenerator{
         if (z >= k2) continue;
         final v = beta * math.log(u1 / (1 - u1));
         final w = a * math.exp(v);
-        if (alpha * math.log(alpha / (b + w)) + v - math.log(4) >= math.log(z)) {
+        if (alpha * math.log(alpha / (b + w)) + v - math.log(4) >=
+            math.log(z)) {
           return (a == a0) ? w / (b + w) : b / (b + w);
         }
       } else {
@@ -413,13 +429,16 @@ final class RandomGenerator{
         if (0.25 * u2 + z - y >= k1) continue;
         final v = beta * math.log(u1 / (1 - u1));
         final w = a * math.exp(v);
-        if (alpha * math.log(alpha / (b + w)) + v - math.log(4) >= math.log(z)) {
+        if (alpha * math.log(alpha / (b + w)) + v - math.log(4) >=
+            math.log(z)) {
           return (a == a0) ? w / (b + w) : b / (b + w);
         }
       }
     }
   }
-  double Beta_by_Gamma2(math.Random rd, {required double a0, required double b0}){
+
+  double Beta_by_Gamma2(math.Random rd,
+      {required double a0, required double b0}) {
     double gamma1 = Gamma(rd, k: a0, theta: 1.0);
     double gamma2 = Gamma(rd, k: b0, theta: 1.0);
     return gamma1 / (gamma1 + gamma2);
@@ -445,14 +464,15 @@ final class RandomGenerator{
   }
 
   /// Gumbel distribution.
-  double Gumbel(math.Random rd, {required double loc, required double scale}){
+  double Gumbel(math.Random rd, {required double loc, required double scale}) {
     double u = rd.nextDouble();
     return loc - scale * math.log(-math.log(u));
   }
 
   /// Hypergeometric distribution.
   /// Algorithm using accurate simulation sampling.
-  int Hypergeometric(math.Random rd, {required int N, required int K, required int n}) {
+  int Hypergeometric(math.Random rd,
+      {required int N, required int K, required int n}) {
     int successes = 0;
     int remainingSuccesses = K;
     int remainingTotal = N;
@@ -468,43 +488,46 @@ final class RandomGenerator{
   }
 
   /// Laplace distribution.
-  double Laplace(math.Random rd, {required double mu, required double b}){
+  double Laplace(math.Random rd, {required double mu, required double b}) {
     double u = rd.nextDouble() - 0.5;
     return mu - b * u.sign * math.log(1 - 2 * u.abs());
   }
 
   /// Logistic distribution.
-  double Logistic(math.Random rd, {required double mu, required double s}){
+  double Logistic(math.Random rd, {required double mu, required double s}) {
     double f = rd.nextDouble();
     return mu + math.log(f / (1 - f)) * s;
   }
 
   /// Lognormal distribution.
-  double Lognormal(math.Random rd, {required double mu, required double sigma}){
+  double Lognormal(math.Random rd,
+      {required double mu, required double sigma}) {
     double sd = StandardNormal(rd);
     return math.exp(mu + sigma * sd);
   }
 
   /// Multinomial distribution.
-  List<int> Multinomial(math.Random rd, {required int n, required List<double> p}){
+  List<int> Multinomial(math.Random rd,
+      {required int n, required List<double> p}) {
     final k = p.length;
     final counts = List<int>.filled(k, 0);
-    final cumProbs = List<double>.filled(k, 0);
+    final cumProbs = List<double>.filled(k, 0.0);
     cumProbs[0] = p[0];
-    for (int i = 1; i < k; i++) {
-      cumProbs[i] = cumProbs[i - 1] + p[i];
-    }
+    for (int i = 1; i < k; i++) cumProbs[i] = cumProbs[i - 1] + p[i];
 
     for (int i = 0; i < n; i++) {
       final u = rd.nextDouble();
-      for (int j = 0; j < k; j++) {
-        if (u < cumProbs[j]) {
-          counts[j]++;
-          break;
+      int lo = 0, hi = k - 1;
+      while (lo < hi) {
+        final mid = (lo + hi) >> 1;
+        if (cumProbs[mid] < u) {
+          lo = mid + 1;
+        } else {
+          hi = mid;
         }
       }
+      counts[lo]++;
     }
-
     return counts;
   }
 
@@ -527,28 +550,29 @@ final class RandomGenerator{
   }
 
   /// Cauchy distribution.
-  double Cauchy(math.Random rd, {required double x0, required double gamma}){
+  double Cauchy(math.Random rd, {required double x0, required double gamma}) {
     return x0 + gamma * math.tan(math.pi * (rd.nextDouble() - 0.5));
   }
 
   /// Pareto distribution.
   /// The parameter [ia] is the reciprocal of alpha.
-  double Pareto(math.Random rd, {required double xm, required double ia}){
+  double Pareto(math.Random rd, {required double xm, required double ia}) {
     return xm / math.pow(1 - rd.nextDouble(), ia);
   }
 
   /// Rayleigh distribution.
-  double Rayleigh(math.Random rd, {required double sigma}){
+  double Rayleigh(math.Random rd, {required double sigma}) {
     return sigma * math.sqrt(-2 * math.log(1 - rd.nextDouble()));
   }
 
   /// Triangular distribution.
-  double Triangular(math.Random rd, {required double a, required b, required c}){
+  double Triangular(math.Random rd,
+      {required double a, required b, required c}) {
     var fc = (c - a) / (b - a);
     var u = rd.nextDouble();
-    if (u < fc){
+    if (u < fc) {
       return a + math.sqrt(u * (b - a) * (c - a));
-    }else{
+    } else {
       return b - math.sqrt((1 - u) * (b - a) * (b - c));
     }
   }
@@ -556,15 +580,21 @@ final class RandomGenerator{
   /// Gaussian Error Function.
   /// By: https://wikimedia.org/api/rest_v1/media/math/render/svg/22c92344e736efd3a7f58953eeb9e9cf2d74fa37
   /// from: https://en.wikipedia.org/wiki/Error_function
-  double erf(double x){
+  double erf(double x) {
     if (x == 0) return 0;
-    else if (x < 0) return -erf(-x);
-    double t = 1 / (1 + 0.3275911 * x);
-    return 1.0 - math.exp(-x * x) * (
-        0.254829592 * t
-            - 0.284496736 * t * t
-            + 1.421413741 * t * t * t
-            - 1.453152027 * math.pow(t, 4) + 1.061405429 * math.pow(t, 5));
+    if (x < 0) return -erf(-x);
+    final t = 1 / (1 + 0.3275911 * x);
+    final t2 = t * t;
+    final t3 = t2 * t;
+    final t4 = t3 * t;
+    final t5 = t4 * t;
+    return 1.0 -
+        math.exp(-x * x) *
+            (0.254829592 * t -
+                0.284496736 * t2 +
+                1.421413741 * t3 -
+                1.453152027 * t4 +
+                1.061405429 * t5);
   }
 
   /// Wald distribution.
@@ -594,6 +624,7 @@ final class RandomGenerator{
       }
       return (left + right) / 2;
     }
+
     double p = rd.nextDouble();
     return inverseGaussianInverseCdf(p);
   }
@@ -606,7 +637,7 @@ final class RandomGenerator{
 
   /// Von Mises distribution.
   /// Reference: https://academic.oup.com/jrsssc/article/28/2/152/6953743
-  double Vonmises(math.Random rd, {required double k, required double mu}){
+  double Vonmises(math.Random rd, {required double k, required double mu}) {
     final double tau = 1 + math.sqrt(1 + 4 * k * k);
     final double rho = (tau - math.sqrt(2 * tau)) / (2 * k);
     final double r = (1 + rho * rho) / (2 * rho);
@@ -632,14 +663,15 @@ final class RandomGenerator{
   /// Student_t distribution.
   /// By: https://wikimedia.org/api/rest_v1/media/math/render/svg/2fafe190857ecb2fdb4f99faf0fcc2ef1a1b2cb1
   /// from: https://en.wikipedia.org/wiki/Noncentral_t-distribution
-  double Student_t(math.Random rd, {required int v, required double mu}){
+  double Student_t(math.Random rd, {required int v, required double mu}) {
     double Z = StandardNormal(rd);
     double V = Chisquare(rd, df: v);
     return (Z + mu) * math.sqrt(v / V);
   }
 
   /// Frechet distribution, positive alpha indicates the shape, positive s indicates the proportion, and m indicates the position of the minimum value.
-  double Frechet(math.Random rd, {required double alpha, required double s, required double m}){
+  double Frechet(math.Random rd,
+      {required double alpha, required double s, required double m}) {
     return m + s / math.pow(-math.log(rd.nextDouble()), 1 / alpha);
   }
 }
