@@ -1746,9 +1746,27 @@ extension MatrixExtension on List<List<double>> {
   }
 
   /// ----------------------------------------3D Transforms--------------------------
+  /// All four transforms follow the same pipeline:
+  ///   1. Extend each (x,y,z) point to homogeneous (x,y,z,1)  →  size×4
+  ///   2. Multiply by the 4×4 transform matrix
+  ///   3. Perspective-divide (w) and strip back to size×3
+  ///
+  /// Input is always size×3.  Output is always size×3.
 
-  /// Rotate points (size×3) around X, Y, Z axes by [rx], [ry], [rz] radians (intrinsic ZYX order).
-  /// Pass [radian]=false to use degrees.
+  // Multiply a homogeneous point [x,y,z,1] by a 4×4 row-major matrix.
+  static List<double> _applyMat4(List<double> p, List<List<double>> m) {
+    final x = p[0], y = p[1], z = p[2];
+    final rx = m[0][0]*x + m[0][1]*y + m[0][2]*z + m[0][3];
+    final ry = m[1][0]*x + m[1][1]*y + m[1][2]*z + m[1][3];
+    final rz = m[2][0]*x + m[2][1]*y + m[2][2]*z + m[2][3];
+    final rw = m[3][0]*x + m[3][1]*y + m[3][2]*z + m[3][3];
+    if (rw.abs() <= tolerance_round) return [double.nan, double.nan, double.nan];
+    return [rx / rw, ry / rw, rz / rw];
+  }
+
+  /// Rotate points (size×3) around X, Y, Z axes.
+  /// [rx], [ry], [rz] are angles; [radian]=false means degrees.
+  /// Rotation order: intrinsic ZYX (= extrinsic XYZ: first X, then Y, then Z).
   List<List<double>> rotateTransform3d({
     double rx = 0.0,
     double ry = 0.0,
@@ -1758,33 +1776,20 @@ extension MatrixExtension on List<List<double>> {
     assert(shape[1] == 3, 'rotateTransform3d requires shape[1] == 3');
     if (!radian) {
       const toRad = math.pi / 180.0;
-      rx *= toRad;
-      ry *= toRad;
-      rz *= toRad;
+      rx *= toRad; ry *= toRad; rz *= toRad;
     }
     final cx = math.cos(rx), sx = math.sin(rx);
     final cy = math.cos(ry), sy = math.sin(ry);
     final cz = math.cos(rz), sz = math.sin(rz);
 
-    // Combined rotation matrix R = Rz * Ry * Rx (intrinsic ZYX / extrinsic XYZ)
-    final r00 = cy * cz;
-    final r01 = cz * sx * sy - cx * sz;
-    final r02 = cx * cz * sy + sx * sz;
-    final r10 = cy * sz;
-    final r11 = cx * cz + sx * sy * sz;
-    final r12 = cx * sy * sz - cz * sx;
-    final r20 = -sy;
-    final r21 = cy * sx;
-    final r22 = cx * cy;
-
-    return map((p) {
-      final x = p[0], y = p[1], z = p[2];
-      return <double>[
-        r00 * x + r01 * y + r02 * z,
-        r10 * x + r11 * y + r12 * z,
-        r20 * x + r21 * y + r22 * z,
-      ];
-    }).toList();
+    // R = Rz * Ry * Rx  (4×4, bottom row / right col are identity)
+    final m = [
+      [cy*cz,  cz*sx*sy - cx*sz,  cx*cz*sy + sx*sz,  0.0],
+      [cy*sz,  cx*cz + sx*sy*sz,  cx*sy*sz - cz*sx,  0.0],
+      [-sy,    cy*sx,             cx*cy,              0.0],
+      [0.0,    0.0,               0.0,                1.0],
+    ];
+    return map((p) => _applyMat4(p, m)).toList();
   }
 
   /// Scale points (size×3) independently along each axis.
@@ -1794,30 +1799,40 @@ extension MatrixExtension on List<List<double>> {
     required double sz,
   }) {
     assert(shape[1] == 3, 'scaleTransform3d requires shape[1] == 3');
-    return map((p) => <double>[p[0] * sx, p[1] * sy, p[2] * sz]).toList();
+    final m = [
+      [sx,  0.0, 0.0, 0.0],
+      [0.0, sy,  0.0, 0.0],
+      [0.0, 0.0, sz,  0.0],
+      [0.0, 0.0, 0.0, 1.0],
+    ];
+    return map((p) => _applyMat4(p, m)).toList();
   }
 
-  /// Translate points (size×3) by [tx], [ty], [tz].
-  /// Input must be size×3; output is also size×3 (no homogeneous coords needed for pure translation).
+  /// Translate points (size×3) by (tx, ty, tz).
   List<List<double>> translateTransform3d({
     required double tx,
     required double ty,
     required double tz,
   }) {
     assert(shape[1] == 3, 'translateTransform3d requires shape[1] == 3');
-    return map((p) => <double>[p[0] + tx, p[1] + ty, p[2] + tz]).toList();
+    final m = [
+      [1.0, 0.0, 0.0, tx],
+      [0.0, 1.0, 0.0, ty],
+      [0.0, 0.0, 1.0, tz],
+      [0.0, 0.0, 0.0, 1.0],
+    ];
+    return map((p) => _applyMat4(p, m)).toList();
   }
 
-  /// Perspective projection of points (size×3) onto the near plane.
+  /// Perspective projection of points (size×3) → size×3 NDC in [-1,1]³.
   ///
-  /// [fov]   vertical field of view in radians (pass [radian]=false for degrees).
-  /// [aspect] width / height ratio of the viewport (default 1.0).
-  /// [near]  near clipping distance (> 0).
-  /// [far]   far clipping distance (> near).
+  /// Camera looks down -Z. Uses the standard OpenGL perspective matrix.
+  /// [fov]    vertical field of view (radians; pass [radian]=false for degrees).
+  /// [aspect] viewport width / height (default 1.0).
+  /// [near]   near clip distance (> 0).
+  /// [far]    far clip distance (> near).
   ///
-  /// Returns size×3: (NDC_x, NDC_y, NDC_z) in [-1,1]³.
-  /// Points behind the near plane or beyond far are still transformed;
-  /// clip them yourself if needed.
+  /// Points whose w ≈ 0 after projection return [NaN, NaN, NaN].
   List<List<double>> perspectiveProject({
     required double fov,
     required double near,
@@ -1829,31 +1844,21 @@ extension MatrixExtension on List<List<double>> {
     assert(near > 0 && far > near, 'near must be > 0 and far > near');
     if (!radian) fov = fov * (math.pi / 180.0);
 
-    final f = 1.0 / math.tan(fov / 2.0);   // focal length
-    final rangeInv = 1.0 / (near - far);
+    final f = 1.0 / math.tan(fov / 2.0);
+    final nf = 1.0 / (near - far);
 
-    // Standard OpenGL-style perspective matrix coefficients (column-major, but
-    // we apply it row-by-row so the math is the same):
-    //   m00 = f/aspect,  m11 = f
-    //   m22 = (far+near)*rangeInv,  m23 = 2*far*near*rangeInv
-    //   m32 = -1  (perspective divide)
-    final m00 = f / aspect;
-    final m11 = f;
-    final m22 = (far + near) * rangeInv;
-    final m23 = 2.0 * far * near * rangeInv;
-
-    return map((p) {
-      final x = p[0], y = p[1], z = p[2];
-      final w = -z; // perspective divide factor (camera looks down -Z)
-      if (w.abs() <= tolerance_round) {
-        return <double>[double.nan, double.nan, double.nan];
-      }
-      return <double>[
-        (m00 * x) / w,
-        (m11 * y) / w,
-        (m22 * z + m23) / w,
-      ];
-    }).toList();
+    // Standard OpenGL column-major perspective matrix, written row-major here:
+    //  [ f/a   0      0              0          ]
+    //  [  0    f      0              0          ]
+    //  [  0    0   (f+n)/(n-f)   2fn/(n-f)     ]
+    //  [  0    0     -1              0          ]
+    final m = [
+      [f / aspect, 0.0,  0.0,                    0.0              ],
+      [0.0,        f,    0.0,                    0.0              ],
+      [0.0,        0.0,  (far + near) * nf,      2.0*far*near*nf  ],
+      [0.0,        0.0, -1.0,                    0.0              ],
+    ];
+    return map((p) => _applyMat4(p, m)).toList();
   }
 
   /// -------------------------------------------------------------------------------
