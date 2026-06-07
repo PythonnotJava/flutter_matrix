@@ -377,3 +377,7 @@ main(){
  [ 91  92  93  94  95  96  97  98  99 100]
 ]
 ```
+
+- 3D transformation of geometry
+
+![img](https://github.com/PythonnotJava/flutter_matrix/raw/V1.X.X/flutter_matrix/example/3d.png)
