@@ -52,6 +52,9 @@ mixin MatrixMath<T extends MatrixBase<T>> on MatrixBase<T> {
   T get degree => _fromList(self.degreeExtension);
   T get radian => _fromList(self.radianExtension);
 
+  /// Internal implementation of element-wise arithmetic operations.
+  /// Supports matrix-to-matrix or matrix-to-scalar operations.
+  /// [dim] specifies the broadcast direction; [mode] 0~3 corresponds to add/subtract/multiply/divide.
   T _abstractOperatorMethod({required Object other, int dim = -1, int mode = 0}){
     if (other is T){
       return _fromList(self._abstractOperatorMethod(mode, other: other.self, number: null, dim: dim));

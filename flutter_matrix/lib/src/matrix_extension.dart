@@ -15,18 +15,29 @@ const _deepEq = const DeepCollectionEquality();
 /// and is also the underlying implementation of matrix logic.
 extension MatrixExtension on List<List<double>> {
   /// -------------------------------Basement--------------------------------------------
+  /// Returns the shape of the matrix as [rows, columns].
   List<int> get shape => [length, this[0].length];
+
+  /// Returns the total number of elements (rows × columns).
   int get size => shape[0] * shape[1];
+
+  /// Flattens the 2D matrix to a 1D list in row-major order.
   List<double> get flattened => expand((e) => e).toList();
+
+  /// Returns true if the matrix is square (rows == columns).
   bool get isSquare => shape[0] == shape[1];
 
-  /// Does not account for uneven list composition.
+  /// Deep copy of the matrix, returning a new independent copy.
+  /// Note: does not handle rows of unequal length.
   List<List<double>> get deepcopy =>
       map((row) => List<double>.from(row)).toList();
 
+  /// Computes [base] to the power of [exponent], returning a double.
   static double _powDouble(num base, num exponent) =>
       math.pow(base, exponent).toDouble();
 
+  /// Returns the two-argument math function corresponding to [mode].
+  /// [mode] 0 = power, 1 = atan2.
   static double Function(double, double) _mathBasementDouble(int mode) {
     return switch (mode) {
       0 => _powDouble,
@@ -35,6 +46,8 @@ extension MatrixExtension on List<List<double>> {
     };
   }
 
+  /// Applies a two-argument function to every element of the matrix, returning a new matrix.
+  /// [mode] specifies the operation type; [number] is the second operand; [reverse]=true swaps argument order.
   List<List<double>> _mathBasementDoubleRealize(int mode,
       {required double number, bool reverse = false}) {
     final func = _mathBasementDouble(mode);
@@ -45,11 +58,15 @@ extension MatrixExtension on List<List<double>> {
             .toList();
   }
 
+  /// Applies a single-argument function to every element of the matrix, returning a new matrix.
+  /// [mode] specifies the math function (see [_mathBasementSingle]).
   List<List<double>> _mathBasementSingleRealize(int mode) {
     final func = _mathBasementSingle(mode);
     return map((row_list) => row_list.map((e) => func(e)).toList()).toList();
   }
 
+  /// Aligns rows of unequal length to the length of the longest row.
+  /// [mode] 0 pads with [number], 1 pads cyclically, other values use [func] to compute fill value.
   void align(
       {int mode = 0,
       double number = double.nan,
@@ -76,6 +93,8 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Returns the element-wise binary operator function corresponding to [mode].
+  /// 0=add, 1=subtract, 2=multiply, 3=divide, 4=integer divide, 5=modulo.
   static double Function(double, double) _abstractOperator(int mode) {
     final double Function(double, double) func = switch (mode) {
       0 => (x, y) => x + y,
@@ -89,6 +108,7 @@ extension MatrixExtension on List<List<double>> {
     return func;
   }
 
+  /// Computes the transpose of [mt_this]; [mt_shape] is its shape.
   static List<List<double>> _transpose(
       {required List<List<double>> mt_this, required List<int> mt_shape}) {
     var [row, column] = mt_shape;
@@ -96,6 +116,8 @@ extension MatrixExtension on List<List<double>> {
         column, (r) => List.generate(row, (c) => mt_this[c][r]));
   }
 
+  /// Removes the specified [row] and [column] from [mt_this], returning the minor matrix.
+  /// [mt_shape] is the shape of the matrix.
   static List<List<double>> _coincidental(
       {required int row,
       required int column,
@@ -127,6 +149,8 @@ extension MatrixExtension on List<List<double>> {
     return data;
   }
 
+  /// Computes the determinant of square matrix [mt_this] using Gaussian elimination.
+  /// [mt_shape] is the shape of the matrix; rows and columns must be equal.
   static double _det(
       {required List<List<double>> mt_this, required List<int> mt_shape}) {
     var [row, column] = mt_shape;
@@ -167,6 +191,8 @@ extension MatrixExtension on List<List<double>> {
     return detValue;
   }
 
+  /// Computes the reduced row echelon form (RREF) of [mt_this].
+  /// [mt_shape] is the shape of the matrix; returns the reduced matrix.
   static List<List<double>> _rref(
       {required List<List<double>> mt_this, required List<int> mt_shape}) {
     final data =
@@ -216,6 +242,8 @@ extension MatrixExtension on List<List<double>> {
     return data;
   }
 
+  /// Returns the single-argument math function corresponding to [mode].
+  /// Supports 24 operations including trig, hyperbolic, exponential/log, and rounding.
   static double Function(double) _mathBasementSingle(int mode) {
     return switch (mode) {
       0 => math.sin,
@@ -246,6 +274,8 @@ extension MatrixExtension on List<List<double>> {
     };
   }
 
+  /// Formats the matrix as a colored string for console printing.
+  /// [format] is a `%x.yf` format string; [color] is a hex color value.
   String prettyPrint({String? format, String color = '#ffd700'}) {
     format ??= data_format;
     final rgbColor = hexToAnsi(color);
@@ -284,6 +314,8 @@ extension MatrixExtension on List<List<double>> {
     return buffer.toString();
   }
 
+  /// Prints the matrix, optionally prepending [start_point] and appending [end_point] lines.
+  /// [format] and [color] are the same as in [prettyPrint].
   void definePrint(
       {String? format,
       String color = '#ffd700',
@@ -298,6 +330,8 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Replaces NaN, positive infinity, and negative infinity with specified values in-place.
+  /// [nan_mask], [inf_mask], and [nag_inf_mask] are the replacement targets for the three special values.
   void setMask({double? nan_mask, double? inf_mask, double? nag_inf_mask}) {
     final _nan = nan_mask ?? double.nan;
     final _pos = inf_mask ?? double.infinity;
@@ -316,6 +350,7 @@ extension MatrixExtension on List<List<double>> {
     });
   }
 
+  /// Checks whether the matrix equals [other], supporting comparison with a matrix or scalar.
   bool equalTo(Object other) {
     if (identical(this, other)) return true;
     if (other is List<List<double>>) {
@@ -342,6 +377,7 @@ extension MatrixExtension on List<List<double>> {
     return false;
   }
 
+  /// Checks whether the matrix contains element [element].
   bool containExtension(double element) {
     for (List<double> list in this) {
       if (list.contains(element)) {
@@ -351,6 +387,8 @@ extension MatrixExtension on List<List<double>> {
     return false;
   }
 
+  /// Converts the matrix to a 2D list or typed array of the specified type [T].
+  /// [T] supports int, bool, float32, uint8, and other [Typed] enum values.
   List<dynamic> toListExtension(Typed T) {
     switch (T) {
       case Typed.int:
@@ -404,6 +442,8 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Appends a row or column of data to the matrix.
+  /// [horizontal]=true appends a row; false appends a column. [data] is the new data.
   void append(List<double> data, {bool horizontal = true}) {
     if (horizontal) {
       assert(isEmpty || data.length == this[0].length);
@@ -417,26 +457,32 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Returns a copy of row [index].
   List<double> row_(int index) {
     int row = shape[0];
     assert(index >= 0 && index < row);
     return [...this[index]];
   }
 
+  /// Returns the data of column [index] as a list.
   List<double> column_(int index) {
     var [row, column] = shape;
     assert(index >= 0 && index < column);
     return List.generate(row, (r) => this[r][index]);
   }
 
+  /// Checks whether the current matrix and [other] have the same shape (same row and column counts).
   bool hasSameShape(List<List<double>> other) =>
       length == other.length && (isEmpty || this[0].length == other[0].length);
 
+  /// Constructs a double matrix from a 2D list of num type [data].
   static List<List<double>> constructor(List<List<num>> data) =>
       List.generate(data.length, (r) {
         return List.generate(data[r].length, (c) => data[r][c].toDouble());
       });
 
+  /// Performs the specified arithmetic operation on the matrix and [other] (matrix or scalar).
+  /// [mode] 0=add, 1=subtract, 2=multiply, 3=divide.
   List<List<double>> _abstractOperatorAny(int mode, Object other) {
     final List<List<double>> Function(
         {int dim,
@@ -457,6 +503,8 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Performs element-wise arithmetic, supporting matrix-to-matrix or matrix-to-scalar operations.
+  /// [dim]=0 broadcasts along rows, [dim]=1 along columns, [dim]=-1 requires identical shapes.
   List<List<double>> _abstractOperatorMethod(int mode,
       {List<List<double>>? other, double? number, int dim = -1}) {
     assert(other != null || number != null);
@@ -486,6 +534,8 @@ extension MatrixExtension on List<List<double>> {
     return data;
   }
 
+  /// Concatenates the current matrix with [other].
+  /// [horizontal]=true concatenates column-wise (left-right); false concatenates row-wise (top-bottom).
   List<List<double>> concat(
       {required List<List<double>> other, bool horizontal = true}) {
     var [row, column] = shape;
@@ -501,6 +551,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Reshapes the matrix to [row] rows and [column] columns; total element count must remain the same.
   List<List<double>> reshape({required int row, required int column}) {
     assert(row > 0 && column > 0 && row * column == size);
     var [oRow, oCol] = shape;
@@ -519,6 +570,7 @@ extension MatrixExtension on List<List<double>> {
     return out;
   }
 
+  /// Resizes the matrix to [row] rows and [column] columns, padding with [number] if larger or truncating if smaller.
   List<List<double>> resize(
       {required int row, required int column, double number = 0.0}) {
     assert(row > 0 && column > 0);
@@ -547,6 +599,7 @@ extension MatrixExtension on List<List<double>> {
     return data;
   }
 
+  /// Flattens the matrix into a single row ([horizontal]=true) or single column matrix.
   List<List<double>> flatten({bool horizontal = true}) {
     if (horizontal) {
       return [expand((e) => e).toList()];
@@ -559,6 +612,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Slices the matrix by row ([horizontal]=true) or column, returning index [start] to [end].
   List<List<double>> slice(
       {required int start, int? end, bool horizontal = true}) {
     var [row, column] = shape;
@@ -585,6 +639,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Selects specified rows ([horizontal]=true) or columns by index list [target], returning a sub-matrix.
   List<List<double>> select(
       {required List<int> target, bool horizontal = true}) {
     var [row, column] = shape;
@@ -599,6 +654,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Removes the rows ([horizontal]=true) or columns specified in index set [target], returning the remaining sub-matrix.
   List<List<double>> drop({required Set<int> target, bool horizontal = true}) {
     var [row, column] = shape;
     List<int> select_target =
@@ -609,6 +665,8 @@ extension MatrixExtension on List<List<double>> {
     return select(target: select_target, horizontal: horizontal);
   }
 
+  /// Sorts matrix elements in-place.
+  /// [reverse]=true for descending order; [dim]=0 sorts by row, 1 by column, -1 sorts the whole matrix.
   void sortExtension({bool reverse = false, int dim = -1}) {
     var [row, column] = shape;
     final cmp = reverse
@@ -636,6 +694,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Creates a [row]×[column] matrix filled entirely with [number].
   static List<List<double>> fill(
       {required double number, required int row, required int column}) {
     assert(row > 0 && column > 0);
@@ -643,6 +702,7 @@ extension MatrixExtension on List<List<double>> {
         row, (_) => List<double>.filled(column, number, growable: true));
   }
 
+  /// Creates a [row]×[column] matrix of consecutive integers starting from [start].
   static List<List<double>> arrange(
       {double start = 0.0, required int row, required int column}) {
     int index = 0;
@@ -651,6 +711,8 @@ extension MatrixExtension on List<List<double>> {
     return data;
   }
 
+  /// Generates a [row]×[column] matrix with equally spaced values in [[start], [end]].
+  /// [keep]=true includes the endpoint; false excludes it.
   static List<List<double>> linspace(
       {required double start,
       required double end,
@@ -670,6 +732,7 @@ extension MatrixExtension on List<List<double>> {
         row, (_) => List.generate(column, (_) => start + index++ * step));
   }
 
+  /// Broadcasts the current matrix to target shape [rows]×[cols] (internal method).
   List<List<double>> _broadcastTo(int rows, int cols) {
     List<List<double>> newSelf = List.generate(rows, (i) {
       List<double> row = this[i % this.length];
@@ -678,6 +741,7 @@ extension MatrixExtension on List<List<double>> {
     return newSelf;
   }
 
+  /// Broadcasts multiple matrices [mts] to the same shape, following NumPy broadcasting rules.
   static List<List<List<double>>> broadcast(List<List<List<double>>> mts) {
     assert(mts.length > 1);
     int maxRows = 0;
@@ -701,6 +765,7 @@ extension MatrixExtension on List<List<double>> {
     return result;
   }
 
+  /// Creates a [row]×[column] arithmetic sequence matrix starting from [start] with step [step].
   static List<List<double>> range(
       {double start = 0.0,
       double step = 1.0,
@@ -713,6 +778,7 @@ extension MatrixExtension on List<List<double>> {
     return data;
   }
 
+  /// Creates an [n]×[n] identity matrix (diagonal = 1, rest = 0).
   static List<List<double>> E({required int n}) {
     assert(n > 0);
     final data = List.generate(
@@ -725,6 +791,7 @@ extension MatrixExtension on List<List<double>> {
     return data;
   }
 
+  /// Creates a [row]×[column] quasi-identity matrix (main diagonal = 1, works for non-square matrices).
   static List<List<double>> ELike({required int row, required int column}) {
     assert(row > 0 && column > 0);
     final data = List.generate(
@@ -738,15 +805,24 @@ extension MatrixExtension on List<List<double>> {
   }
 
   /// ----------------------------------------operator-------------------------------------------
+  /// Raises each element of the matrix to the [number]-th power, returning a new matrix.
   List<List<double>> operator ^(num number) =>
       map((row_list) => row_list.map((e) => _powDouble(e, number)).toList())
           .toList();
 
+  /// Matrix addition, supporting matrix or scalar operands.
   List<List<double>> operator +(Object other) => _abstractOperatorAny(0, other);
+
+  /// Matrix subtraction, supporting matrix or scalar operands.
   List<List<double>> operator -(Object other) => _abstractOperatorAny(1, other);
+
+  /// Element-wise matrix multiplication, supporting matrix or scalar operands.
   List<List<double>> operator *(Object other) => _abstractOperatorAny(2, other);
+
+  /// Element-wise matrix division, supporting matrix or scalar operands.
   List<List<double>> operator /(Object other) => _abstractOperatorAny(3, other);
 
+  /// Checks if all elements are greater than [other] (matrix or scalar).
   bool operator >(Object other) {
     if (identical(this, other)) return false;
     if (other is List<List<double>>) {
@@ -764,6 +840,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Checks if all elements are greater than or equal to [other] (matrix or scalar).
   bool operator >=(Object other) {
     if (identical(this, other)) return true;
     if (other is List<List<double>>) {
@@ -781,6 +858,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Checks if all elements are less than [other] (matrix or scalar).
   bool operator <(Object other) {
     if (identical(this, other)) return false;
     if (other is List<List<double>>) {
@@ -798,6 +876,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Checks if all elements are less than or equal to [other] (matrix or scalar).
   bool operator <=(Object other) {
     if (identical(this, other)) return true;
     if (other is List<List<double>>) {
@@ -819,59 +898,117 @@ extension MatrixExtension on List<List<double>> {
 
   /// -------------------------------Math--------------------------------------------
 
+  /// Raises each element to [number] (element as base, [number] as exponent).
+  /// [reverse]=true uses [number] as base and element as exponent.
   List<List<double>> powerExtension(
           {required double number, bool reverse = false}) =>
       _mathBasementDoubleRealize(0, number: number, reverse: reverse);
 
+  /// Computes atan2 for each element with [number] as the second argument.
+  /// [reverse]=true swaps the argument order.
   List<List<double>> atan2Extension(
           {required double number, bool reverse = false}) =>
       _mathBasementDoubleRealize(1, number: number, reverse: reverse);
 
+  /// Computes the sine of each element.
   List<List<double>> get sinExtension => _mathBasementSingleRealize(0);
+
+  /// Computes the cosine of each element.
   List<List<double>> get cosExtension => _mathBasementSingleRealize(1);
+
+  /// Computes the tangent of each element.
   List<List<double>> get tanExtension => _mathBasementSingleRealize(2);
+
+  /// Computes the arcsine of each element.
   List<List<double>> get asinExtension => _mathBasementSingleRealize(3);
+
+  /// Computes the arccosine of each element.
   List<List<double>> get acosExtension => _mathBasementSingleRealize(4);
+
+  /// Computes the arctangent of each element.
   List<List<double>> get atanExtension => _mathBasementSingleRealize(5);
+
+  /// Computes the hyperbolic sine of each element.
   List<List<double>> get sinhExtension => _mathBasementSingleRealize(6);
+
+  /// Computes the hyperbolic cosine of each element.
   List<List<double>> get coshExtension => _mathBasementSingleRealize(7);
+
+  /// Computes the hyperbolic tangent of each element.
   List<List<double>> get tanhExtension => _mathBasementSingleRealize(8);
+
+  /// Computes the inverse hyperbolic sine of each element.
   List<List<double>> get asinhExtension => _mathBasementSingleRealize(9);
+
+  /// Computes the inverse hyperbolic cosine of each element.
   List<List<double>> get acoshExtension => _mathBasementSingleRealize(10);
+
+  /// Computes the inverse hyperbolic tangent of each element.
   List<List<double>> get atanhExtension => _mathBasementSingleRealize(11);
+
+  /// Computes the natural exponential e^x of each element.
   List<List<double>> get expExtension => _mathBasementSingleRealize(12);
+
+  /// Computes the natural logarithm ln(x) of each element.
   List<List<double>> get logExtension => _mathBasementSingleRealize(13);
+
+  /// Computes the square root of each element.
   List<List<double>> get sqrtExtension => _mathBasementSingleRealize(14);
+
+  /// Computes the base-10 logarithm of each element.
   List<List<double>> get log10Extension => _mathBasementSingleRealize(15);
+
+  /// Computes the square of each element.
   List<List<double>> get squareExtension => _mathBasementSingleRealize(16);
+
+  /// Computes the cube of each element.
   List<List<double>> get cubeExtension => _mathBasementSingleRealize(17);
+
+  /// Computes the absolute value of each element.
   List<List<double>> get absExtension => _mathBasementSingleRealize(18);
+
+  /// Rounds each element up (ceiling).
   List<List<double>> get ceilExtension => _mathBasementSingleRealize(19);
+
+  /// Rounds each element down (floor).
   List<List<double>> get floorExtension => _mathBasementSingleRealize(20);
+
+  /// Rounds each element to the nearest integer.
   List<List<double>> get roundExtension => _mathBasementSingleRealize(21);
+
+  /// Converts each element from radians to degrees.
   List<List<double>> get degreeExtension => _mathBasementSingleRealize(22);
+
+  /// Converts each element from degrees to radians.
   List<List<double>> get radianExtension => _mathBasementSingleRealize(23);
 
+  /// Element-wise addition, supporting matrix or scalar operands with broadcast via [dim].
   List<List<double>> addExtension(
           {List<List<double>>? other, double? number, int dim = -1}) =>
       _abstractOperatorMethod(0, other: other, number: number, dim: dim);
 
+  /// Element-wise subtraction, supporting matrix or scalar operands with broadcast via [dim].
   List<List<double>> minusExtension(
           {List<List<double>>? other, double? number, int dim = -1}) =>
       _abstractOperatorMethod(1, other: other, number: number, dim: dim);
 
+  /// Element-wise multiplication, supporting matrix or scalar operands with broadcast via [dim].
   List<List<double>> multiplyExtension(
           {List<List<double>>? other, double? number, int dim = -1}) =>
       _abstractOperatorMethod(2, other: other, number: number, dim: dim);
 
+  /// Element-wise division, supporting matrix or scalar operands with broadcast via [dim].
   List<List<double>> divideExtension(
           {List<List<double>>? other, double? number, int dim = -1}) =>
       _abstractOperatorMethod(3, other: other, number: number, dim: dim);
 
+  /// Picks every [step]-th element from [list] starting at index [from].
   static List<T> _selectEveryNth<T>(List<T> list, int step, int from) {
     return [for (int i = from; i < list.length; i += step) list[i]];
   }
 
+  /// Performs Fast Fourier Transform (FFT) on a complex matrix (each row in [real, imag] format).
+  /// The row count of [mt_this] must be a power of two; [mt_shape] is its shape.
   static List<Complex> _fft(
       {required List<List<double>> mt_this, required List<int> mt_shape}) {
     var [row, column] = mt_shape;
@@ -894,9 +1031,11 @@ extension MatrixExtension on List<List<double>> {
     });
   }
 
+  /// Computes the sum of all elements. [dim]=0 sums by row, 1 by column, -1 globally.
   Object sumExtension({int dim = -1}) =>
       reduceExtension((x, y) => x + y, dim: dim);
 
+  /// Computes the minimum value. [dim]=0 by row, 1 by column, -1 globally.
   Object minExtension({int dim = -1}) {
     var [row, column] = shape;
     if (dim == 0) {
@@ -921,6 +1060,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Computes the maximum value. [dim]=0 by row, 1 by column, -1 globally.
   Object maxExtension({int dim = -1}) {
     var [row, column] = shape;
     if (dim == 0) {
@@ -945,6 +1085,8 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Internal method for finding the index of the min or max value.
+  /// [isMin]=true finds argmin, false finds argmax; [dim] specifies the dimension.
   Object _argMinMax(bool isMin, {int dim = -1}) {
     var _min_max = isMin ? minExtension(dim: dim) : maxExtension(dim: dim);
     if (dim == 0) {
@@ -966,10 +1108,14 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
-  /// Do not handle NaN.
+  /// Returns the index of the minimum value. [dim]=0/1/-1 for row/column/global. Does not handle NaN.
   Object argmin({int dim = -1}) => _argMinMax(true, dim: dim);
+
+  /// Returns the index of the maximum value. [dim]=0/1/-1 for row/column/global. Does not handle NaN.
   Object argmax({int dim = -1}) => _argMinMax(false, dim: dim);
 
+  /// Gets the value range (min to max as [Range]) of the matrix elements.
+  /// [dim]=0 by row, 1 by column, -1 globally.
   Object getRangeExtension({int dim = -1}) {
     if (dim == 0) {
       return List.generate(shape[0], (r) {
@@ -991,11 +1137,13 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Numerically differentiates [func] for each element using central difference.
   List<List<double>> diff(double Function(double) func) {
     return map((row_list) => row_list.map((x) => diffCentral(x, func)).toList())
         .toList();
   }
 
+  /// Performs Discrete Fourier Transform (DFT) on a complex matrix (columns == 2, each row is [real, imag]).
   List<List<double>> dftComplex() {
     var [row, column] = shape;
     assert(column == 2);
@@ -1014,6 +1162,7 @@ extension MatrixExtension on List<List<double>> {
     return data;
   }
 
+  /// Performs Fast Fourier Transform (FFT) on a complex matrix (columns == 2, rows must be a power of two).
   List<List<double>> fftComplex() {
     bool _isPowerOfTwo(int n) => n >= 1 && (n & (n - 1)) == 0;
     var [row, column] = shape;
@@ -1030,6 +1179,8 @@ extension MatrixExtension on List<List<double>> {
         .toList();
   }
 
+  /// Converts a real matrix to complex form (each element becomes [real, 0] or [0, imag]).
+  /// [isReal]=true treats elements as real parts; false treats them as imaginary parts.
   List<List<double>> toComplexLike([bool isReal = true]) {
     var [row, column] = shape;
     List<List<double>> data = [];
@@ -1049,6 +1200,7 @@ extension MatrixExtension on List<List<double>> {
     return data;
   }
 
+  /// Performs 2D Discrete Fourier Transform (2D DFT) on a 2D real matrix, returning a complex matrix.
   List<List<Complex>> dft() {
     var [rows, cols] = shape;
     List<List<Complex>> result = [];
@@ -1070,16 +1222,19 @@ extension MatrixExtension on List<List<double>> {
     return result;
   }
 
+  /// Returns the sign of each element (-1, 0, or 1).
   List<List<double>> get sgn =>
       map((row) => row.map((c) => c.sign).toList()).toList();
 
   /// ------------------------------------------------------------------------------------
   /// -------------------------------Functool--------------------------------------------
+  /// Applies a custom function [condition] to each element, returning a new matrix.
   List<List<double>> customize(double Function(double) condition) {
     return map((row_list) => row_list.map((e) => condition(e)).toList())
         .toList();
   }
 
+  /// Applies a two-argument function [condition] element-wise to the current matrix and [other], returning a new matrix.
   List<List<double>> confront(double Function(double, double) condition,
       {required List<List<double>> other}) {
     assert(hasSameShape(other));
@@ -1090,6 +1245,8 @@ extension MatrixExtension on List<List<double>> {
             column, (c) => condition(this[r][c], other[r][c])));
   }
 
+  /// Applies [condition] to elements outside [[lb], [ub]] (clipping).
+  /// [reverse]=true applies the function to elements inside the range instead, leaving others unchanged.
   List<List<double>> clip(double Function(double) condition,
       {required double lb, required double ub, bool reverse = false}) {
     assert(lb <= ub);
@@ -1116,6 +1273,8 @@ extension MatrixExtension on List<List<double>> {
     return data;
   }
 
+  /// Performs a reduce operation on matrix elements; [condition] is the accumulation function.
+  /// [element] is the initial value; [dim]=0/1/-1 reduces by row/column/globally.
   Object reduceExtension(double Function(double, double) condition,
       {double? element, int dim = -1}) {
     var [row, column] = shape;
@@ -1155,6 +1314,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Checks if any element satisfies [condition]. [dim]=0/1/-1 checks by row/column/globally.
   Object anyExtension(bool Function(double) condition, {int dim = -1}) {
     if (dim == 0) {
       return List.generate(shape[0], (r) => this[r].any(condition));
@@ -1166,6 +1326,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Checks if all elements satisfy [condition]. [dim]=0/1/-1 checks by row/column/globally.
   Object allExtension(bool Function(double) condition, {int dim = -1}) {
     if (dim == 0) {
       return List.generate(shape[0], (r) => this[r].every(condition));
@@ -1177,6 +1338,8 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Performs element-wise comparison between the current matrix and [other]; [which] specifies comparison type.
+  /// 0=>greater, 1=>less, 2=>greater or equal, 3=>less or equal, 4=>not equal, others=>equal.
   List<BoolList> compareExtension(
       {required List<List<double>> other, int which = -1}) {
     assert(hasSameShape(other));
@@ -1203,6 +1366,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Replaces elements that satisfy [condition] using the [cope] function in-place.
   void replaceExtension(bool Function(double) condition,
       {required double Function(double) cope}) {
     for (var list in this) {
@@ -1215,6 +1379,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Counts elements satisfying [condition]. [dim]=0/1/-1 counts by row/column/globally.
   Object countExtension(bool Function(double) condition, {int dim = -1}) {
     if (dim == 0) {
       return List.generate(shape[0], (r) {
@@ -1252,12 +1417,20 @@ extension MatrixExtension on List<List<double>> {
   /// ------------------------------------------------------------------------------------
 
   /// -------------------------------Linalg--------------------------------------------
+  /// Returns the transpose of the matrix.
   List<List<double>> get transpose =>
       _transpose(mt_this: this, mt_shape: shape);
+
+  /// Shorthand alias for [transpose].
   List<List<double>> get T_ => transpose;
 
+  /// Returns the determinant of the square matrix.
   double get det => _det(mt_this: this, mt_shape: shape);
+
+  /// Returns the reduced row echelon form (RREF) of the matrix.
   List<List<double>> get rref => _rref(mt_this: this, mt_shape: shape);
+
+  /// Returns the sum of the main diagonal elements (trace).
   double get trace {
     double sums = 0.0;
     for (int i = 0; i < math.min(shape[0], shape[1]); i++) {
@@ -1266,9 +1439,11 @@ extension MatrixExtension on List<List<double>> {
     return sums;
   }
 
+  /// Removes row [row] and column [column] from the matrix, returning the minor matrix.
   List<List<double>> coincidental({required int row, required int column}) =>
       _coincidental(row: row, column: column, mt_shape: shape, mt_this: this);
 
+  /// Elementary row (column) operation: swap rows (columns) [index1] and [index2] ([horizontal]=true for rows) in-place.
   void elementaryExchange(
       {required int index1, required int index2, bool horizontal = true}) {
     var [row, column] = shape;
@@ -1285,6 +1460,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Elementary row (column) operation: multiply all elements of row (column) [index] by [number] in-place.
   void elementaryMultiply(
       {required int index, required double number, bool horizontal = true}) {
     var [row, column] = shape;
@@ -1301,6 +1477,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Elementary row (column) operation: multiply row (column) [index2] by [number] and add to row (column) [index1] in-place.
   void elementaryAdd(
       {required int index1,
       required int index2,
@@ -1320,6 +1497,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Computes matrix product (matrix multiplication). [other] is the right matrix; its rows must equal this matrix's columns.
   List<List<double>> product({required List<List<double>> other}) {
     var [row, column] = shape;
     var [other_row, other_column] = other.shape;
@@ -1347,6 +1525,7 @@ extension MatrixExtension on List<List<double>> {
     return data;
   }
 
+  /// Computes the Kronecker product (tensor product) of the current matrix with [other].
   List<List<double>> kronecker({required List<List<double>> other}) {
     var [row, column] = shape;
     var [other_row, other_column] = other.shape;
@@ -1369,6 +1548,7 @@ extension MatrixExtension on List<List<double>> {
     return data;
   }
 
+  /// Returns the adjugate matrix of a square matrix (transpose of the cofactor matrix).
   List<List<double>> get adjugate {
     assert(isSquare);
     int n = shape[0];
@@ -1384,6 +1564,7 @@ extension MatrixExtension on List<List<double>> {
     return data;
   }
 
+  /// Returns the inverse of a square matrix; throws [StateError] if the matrix is singular.
   List<List<double>> get inverse {
     var [row, column] = shape;
     assert(row == column, 'inverse requires a square matrix');
@@ -1442,6 +1623,7 @@ extension MatrixExtension on List<List<double>> {
     );
   }
 
+  /// Returns the rank of the matrix (number of non-zero rows computed via RREF).
   int get rank {
     final rref_list = rref;
     int counter = 0;
@@ -1861,10 +2043,167 @@ extension MatrixExtension on List<List<double>> {
     return map((p) => _applyMat4(p, m)).toList();
   }
 
+  /// Rotate points (size×3) around an arbitrary axis by [angle].
+  ///
+  /// [axis] is any non-zero vector (normalised internally).
+  /// [point] is any point on the axis line (default: origin).
+  /// Uses the Rodrigues rotation formula.
+  List<List<double>> rotateAroundAxis({
+    required List<double> axis,
+    required double angle,
+    List<double> point = const [0.0, 0.0, 0.0],
+    bool radian = true,
+  }) {
+    assert(shape[1] == 3, 'rotateAroundAxis requires shape[1] == 3');
+    assert(axis.length == 3, 'axis must have 3 components');
+    assert(point.length == 3, 'point must have 3 components');
+    if (!radian) angle = angle * (math.pi / 180.0);
+
+    final len = math.sqrt(axis[0]*axis[0] + axis[1]*axis[1] + axis[2]*axis[2]);
+    assert(len > tolerance_round, 'axis must be a non-zero vector');
+    final ax = axis[0]/len, ay = axis[1]/len, az = axis[2]/len;
+    final c = math.cos(angle), s = math.sin(angle), t = 1.0 - c;
+    final px = point[0], py = point[1], pz = point[2];
+
+    // Rodrigues 4×4: translate to origin → rotate → translate back
+    final m = [
+      [t*ax*ax + c,    t*ax*ay - s*az, t*ax*az + s*ay,
+          px - (t*ax*ax+c)*px - (t*ax*ay-s*az)*py - (t*ax*az+s*ay)*pz],
+      [t*ax*ay + s*az, t*ay*ay + c,    t*ay*az - s*ax,
+          py - (t*ax*ay+s*az)*px - (t*ay*ay+c)*py - (t*ay*az-s*ax)*pz],
+      [t*ax*az - s*ay, t*ay*az + s*ax, t*az*az + c,
+          pz - (t*ax*az-s*ay)*px - (t*ay*az+s*ax)*py - (t*az*az+c)*pz],
+      [0.0, 0.0, 0.0, 1.0],
+    ];
+    return map((p) => _applyMat4(p, m)).toList();
+  }
+
+  /// Scale points (size×3) along an arbitrary direction [dir] by factor [factor].
+  ///
+  /// [dir] is the scaling direction (normalised internally).
+  /// Components perpendicular to [dir] are unchanged.
+  List<List<double>> scaleAlongAxis({
+    required List<double> dir,
+    required double factor,
+  }) {
+    assert(shape[1] == 3, 'scaleAlongAxis requires shape[1] == 3');
+    assert(dir.length == 3, 'dir must have 3 components');
+    final len = math.sqrt(dir[0]*dir[0] + dir[1]*dir[1] + dir[2]*dir[2]);
+    assert(len > tolerance_round, 'dir must be a non-zero vector');
+    final nx = dir[0]/len, ny = dir[1]/len, nz = dir[2]/len;
+    final k = factor - 1.0;
+    final m = [
+      [1.0 + k*nx*nx, k*nx*ny,       k*nx*nz,       0.0],
+      [k*nx*ny,       1.0 + k*ny*ny, k*ny*nz,       0.0],
+      [k*nx*nz,       k*ny*nz,       1.0 + k*nz*nz, 0.0],
+      [0.0,           0.0,           0.0,            1.0],
+    ];
+    return map((p) => _applyMat4(p, m)).toList();
+  }
+
+  /// Reflect points (size×3) across a plane defined by its unit normal [normal]
+  /// passing through [point] (default: origin).
+  List<List<double>> reflectAcrossPlane({
+    required List<double> normal,
+    List<double> point = const [0.0, 0.0, 0.0],
+  }) {
+    assert(shape[1] == 3, 'reflectAcrossPlane requires shape[1] == 3');
+    assert(normal.length == 3, 'normal must have 3 components');
+    assert(point.length == 3, 'point must have 3 components');
+    final len = math.sqrt(normal[0]*normal[0] + normal[1]*normal[1] + normal[2]*normal[2]);
+    assert(len > tolerance_round, 'normal must be a non-zero vector');
+    final nx = normal[0]/len, ny = normal[1]/len, nz = normal[2]/len;
+    final px = point[0], py = point[1], pz = point[2];
+    final d = nx*px + ny*py + nz*pz;
+    // R = I - 2*n⊗n, with translation 2d*n to handle off-origin plane
+    final m = [
+      [1.0 - 2*nx*nx, -2*nx*ny,       -2*nx*nz,       2*d*nx],
+      [-2*nx*ny,       1.0 - 2*ny*ny, -2*ny*nz,       2*d*ny],
+      [-2*nx*nz,       -2*ny*nz,       1.0 - 2*nz*nz, 2*d*nz],
+      [0.0,            0.0,            0.0,            1.0   ],
+    ];
+    return map((p) => _applyMat4(p, m)).toList();
+  }
+
+  /// Orthographic projection of points (size×3) → size×3 NDC in [-1,1]³.
+  ///
+  /// Maps the axis-aligned box [left,right]×[bottom,top]×[near,far] to NDC.
+  List<List<double>> orthographicProject({
+    required double left,
+    required double right,
+    required double bottom,
+    required double top,
+    required double near,
+    required double far,
+  }) {
+    assert(shape[1] == 3, 'orthographicProject requires shape[1] == 3');
+    assert(right > left && top > bottom && far > near);
+    final rl = 1.0 / (right - left);
+    final tb = 1.0 / (top   - bottom);
+    final fn = 1.0 / (far   - near);
+    final m = [
+      [2*rl, 0.0,  0.0,   -(right+left)*rl],
+      [0.0,  2*tb, 0.0,   -(top+bottom)*tb],
+      [0.0,  0.0,  -2*fn, -(far+near)*fn  ],
+      [0.0,  0.0,  0.0,    1.0            ],
+    ];
+    return map((p) => _applyMat4(p, m)).toList();
+  }
+
+  /// Oblique projection of points (size×3) → size×3.
+  ///
+  /// Projects onto XY plane. [angle] is the oblique direction angle (radian),
+  /// [factor] is the foreshortening ratio of the receding axis (0.5 = cabinet,
+  /// 1.0 = cavalier).
+  List<List<double>> obliqueProject({
+    required double angle,
+    double factor = 0.5,
+    bool radian = true,
+  }) {
+    assert(shape[1] == 3, 'obliqueProject requires shape[1] == 3');
+    if (!radian) angle = angle * (math.pi / 180.0);
+    final ca = math.cos(angle) * factor;
+    final sa = math.sin(angle) * factor;
+    final m = [
+      [1.0, 0.0, ca,  0.0],
+      [0.0, 1.0, sa,  0.0],
+      [0.0, 0.0, 0.0, 0.0],
+      [0.0, 0.0, 0.0, 1.0],
+    ];
+    return map((p) => _applyMat4(p, m)).toList();
+  }
+
+  /// Shear points (size×3).
+  ///
+  /// Each pair shifts one axis proportionally to another:
+  /// - [xy]: x += xy * y
+  /// - [xz]: x += xz * z
+  /// - [yx]: y += yx * x
+  /// - [yz]: y += yz * z
+  /// - [zx]: z += zx * x
+  /// - [zy]: z += zy * y
+  List<List<double>> shearTransform3d({
+    double xy = 0.0, double xz = 0.0,
+    double yx = 0.0, double yz = 0.0,
+    double zx = 0.0, double zy = 0.0,
+  }) {
+    assert(shape[1] == 3, 'shearTransform3d requires shape[1] == 3');
+    final m = [
+      [1.0, xy,  xz,  0.0],
+      [yx,  1.0, yz,  0.0],
+      [zx,  zy,  1.0, 0.0],
+      [0.0, 0.0, 0.0, 1.0],
+    ];
+    return map((p) => _applyMat4(p, m)).toList();
+  }
+
   /// -------------------------------------------------------------------------------
   /// ----------------------------------------ML------------------------------------
 
-  /// Without performing exp(x - max(x)), a large x overflows to inf → resulting in NaN.
+  /// ----------------------------------------ML------------------------------------
+
+  /// Applies the Softmax activation function to the matrix. [dim]=0 normalizes by row, 1 by column, -1 globally.
+  /// Internally uses exp(x) rather than exp(x - max(x)); large values may overflow to inf causing NaN.
   List<List<double>> Softmax({int dim = -1}) {
     var [row, column] = shape;
     late List<List<double>> ls;
@@ -1915,6 +2254,7 @@ extension MatrixExtension on List<List<double>> {
     return ls;
   }
 
+  /// Applies the Leaky ReLU activation function. [alpha] is the slope for the negative region (default 0.01).
   List<List<double>> LeakyReLU({double alpha = 0.01}) {
     var [row, column] = shape;
     return List.generate(
@@ -1925,8 +2265,10 @@ extension MatrixExtension on List<List<double>> {
             }));
   }
 
+  /// Applies the ReLU activation function (negative values become zero).
   List<List<double>> ReLU() => LeakyReLU(alpha: 0.0);
 
+  /// Applies the Sigmoid activation function, mapping elements to (0, 1).
   List<List<double>> Sigmoid() {
     var [row, column] = shape;
     return List.generate(
@@ -1935,6 +2277,7 @@ extension MatrixExtension on List<List<double>> {
             List.generate(column, (c) => 1.0 / (1.0 + math.exp(-this[r][c]))));
   }
 
+  /// Applies the ELU activation function. [alpha] is the scaling coefficient for the negative region.
   List<List<double>> ELU({required double alpha}) {
     var [row, column] = shape;
     return List.generate(
@@ -1945,6 +2288,7 @@ extension MatrixExtension on List<List<double>> {
             }));
   }
 
+  /// Applies the Swish activation function (x * sigmoid(x)).
   List<List<double>> Swish() {
     var [row, column] = shape;
     return List.generate(
@@ -1955,6 +2299,7 @@ extension MatrixExtension on List<List<double>> {
             }));
   }
 
+  /// Applies the Softsign activation function (x / (1 + |x|)).
   List<List<double>> Softsign() {
     var [row, column] = shape;
     return List.generate(
@@ -1965,6 +2310,7 @@ extension MatrixExtension on List<List<double>> {
             }));
   }
 
+  /// Applies the Softplus activation function (ln(1 + e^x)).
   List<List<double>> Softplus() {
     var [row, column] = shape;
     return List.generate(
@@ -1974,6 +2320,8 @@ extension MatrixExtension on List<List<double>> {
             }));
   }
 
+  /// Computes the Mean Absolute Error (MAE) between the current matrix and [other].
+  /// [dim]=0/1/-1 computes by row/column/globally.
   Object MAE({required List<List<double>> other, int dim = -1}) {
     assert(hasSameShape(other));
     var [row, column] = shape;
@@ -2004,6 +2352,8 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Computes the Mean Squared Error (MSE) between the current matrix and [other].
+  /// [dim]=0/1/-1 computes by row/column/globally.
   Object MSE({required List<List<double>> other, int dim = -1}) {
     assert(hasSameShape(other));
     var [row, column] = shape;
@@ -2040,6 +2390,8 @@ extension MatrixExtension on List<List<double>> {
 
   /// ----------------------------------------------------------------------------
   /// ---------------------------------Random-------------------------------------
+  /// Randomly shuffles matrix elements in-place.
+  /// [dim]=0 shuffles by row, 1 by column, -1 shuffles the whole matrix; [seed] is the random seed.
   void shuffleExtension({int? seed, int dim = -1}) {
     var random = math.Random(seed);
     var [row, column] = shape;
@@ -2067,6 +2419,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Computes the mean of matrix elements. [dim]=0/1/-1 computes by row/column/globally.
   Object meanExtension({int dim = -1}) {
     var [row, column] = shape;
     if (dim == 0) {
@@ -2080,6 +2433,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Computes the median of matrix elements. [dim]=0/1/-1 computes by row/column/globally.
   Object medianExtension({int dim = -1}) {
     var [row, column] = shape;
     if (dim == 0) {
@@ -2116,6 +2470,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Computes the mode of matrix elements. [dim]=0/1/-1 computes by row/column/globally. Returns null when all values have equal frequency.
   dynamic modeExtension({int dim = -1}) {
     var [row, column] = shape;
     late Map<Object, int> dict;
@@ -2168,6 +2523,8 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Adds random noise to all elements in-place; noise range is ±[bias].
+  /// [seed] is the random seed.
   void shakeTotal({double bias = 1.0, int? seed}) {
     bias = bias.abs();
     if (bias != 0.0) {
@@ -2182,6 +2539,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Randomly adds noise to [percent] proportion of elements in-place; noise range is ±[bias].
   void shakePercent({double bias = 1.0, double percent = 0.5, int? seed}) {
     assert(percent > 0 && percent <= 1);
     bias = bias.abs();
@@ -2204,6 +2562,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Randomly adds noise to each element with probability [p] in-place; noise range is ±[bias].
   void shakeProbably({double bias = 1.0, double p = 0.5, int? seed}) {
     assert(p > 0 && p <= 1);
     bias = bias.abs();
@@ -2222,6 +2581,7 @@ extension MatrixExtension on List<List<double>> {
     }
   }
 
+  /// Generates a [row]×[column] uniform random matrix with values in [[lb], [ub]].
   static List<List<double>> uniform(
       {double lb = 0.0,
       double ub = 1.0,
@@ -2237,6 +2597,7 @@ extension MatrixExtension on List<List<double>> {
             column, (_) => lb + gap * random.nextDouble()));
   }
 
+  /// Generates a [row]×[column] normal distribution random matrix with mean [mu] and standard deviation [sigma].
   static List<List<double>> normal(
       {double mu = 0.0,
       double sigma = 1.0,
@@ -2251,6 +2612,7 @@ extension MatrixExtension on List<List<double>> {
             column, (_) => _randomGenerator.Normal(random, sigma, mu)));
   }
 
+  /// Generates a [row]×[column] binomial distribution random matrix with [n] trials and success probability [p].
   static List<List<double>> binomial(
       {required int n,
       required double p,
@@ -2265,6 +2627,7 @@ extension MatrixExtension on List<List<double>> {
             (_) => _randomGenerator.Binomial(random, n: n, p: p).toDouble()));
   }
 
+  /// Generates a [row]×[column] chi-square distribution random matrix with [df] degrees of freedom.
   static List<List<double>> chisquare(
       {required int df, required int row, required int column, int? seed}) {
     assert(df > 0 && row > 0 && column > 0);
@@ -2275,6 +2638,7 @@ extension MatrixExtension on List<List<double>> {
             column, (_) => _randomGenerator.Chisquare(random, df: df)));
   }
 
+  /// Generates a [row]×[column] exponential distribution random matrix with rate parameter [lambda].
   static List<List<double>> exponential(
       {required double lambda,
       required int row,
@@ -2288,6 +2652,7 @@ extension MatrixExtension on List<List<double>> {
             (_) => _randomGenerator.Exponential(random, lambda: lambda)));
   }
 
+  /// Generates a [row]×[column] F-distribution random matrix with degrees of freedom [d1] and [d2].
   static List<List<double>> f(
       {required int d1,
       required int d2,
@@ -2302,6 +2667,7 @@ extension MatrixExtension on List<List<double>> {
             column, (_) => _randomGenerator.F(random, d1: d1, d2: d2)));
   }
 
+  /// Generates a [row]×[column] Gamma distribution random matrix with shape [k] and scale [theta].
   static List<List<double>> gamma(
       {required double k,
       required double theta,
@@ -2316,6 +2682,7 @@ extension MatrixExtension on List<List<double>> {
             column, (_) => _randomGenerator.Gamma(random, k: k, theta: theta)));
   }
 
+  /// Generates a [row]×[column] Beta distribution random matrix with positive shape parameters [a] and [b].
   static List<List<double>> beta(
       {required double a,
       required double b,
@@ -2336,6 +2703,7 @@ extension MatrixExtension on List<List<double>> {
         row, (_) => List.generate(column, (_) => _f(random, a0: a, b0: b)));
   }
 
+  /// Generates a [row]-row Dirichlet distribution random matrix with concentration parameter [alpha] (length determines column count).
   static List<List<double>> dirichlet(
       {required List<double> alpha, required int row, int? seed}) {
     int column = alpha.length;
@@ -2345,6 +2713,7 @@ extension MatrixExtension on List<List<double>> {
         row, (_) => _randomGenerator.Dirichlet(random, alpha: alpha));
   }
 
+  /// Generates a [row]×[column] geometric distribution random matrix with success probability [p].
   static List<List<double>> geometric(
       {required double p, required int row, required int column, int? seed}) {
     assert(p > 0 && p <= 1 && row > 0 && column > 0);
@@ -2355,6 +2724,7 @@ extension MatrixExtension on List<List<double>> {
             (_) => _randomGenerator.Geometric(random, p: p).toDouble()));
   }
 
+  /// Generates a [row]×[column] Gumbel distribution random matrix with location [loc] and scale [scale].
   static List<List<double>> gumbel(
       {required double loc,
       required double scale,
@@ -2369,6 +2739,8 @@ extension MatrixExtension on List<List<double>> {
             (_) => _randomGenerator.Gumbel(random, loc: loc, scale: scale)));
   }
 
+  /// Generates a [row]×[column] hypergeometric distribution random matrix.
+  /// [N] is total population, [K] is number of successes, [n] is sample size.
   static List<List<double>> hypergeometric(
       {required int N,
       required int K,
@@ -2386,6 +2758,7 @@ extension MatrixExtension on List<List<double>> {
                 .toDouble()));
   }
 
+  /// Generates a [row]×[column] Laplace distribution random matrix with mean [mu] and scale [b].
   static List<List<double>> laplace(
       {required double mu,
       required double b,
@@ -2400,6 +2773,7 @@ extension MatrixExtension on List<List<double>> {
             column, (_) => _randomGenerator.Laplace(random, mu: mu, b: b)));
   }
 
+  /// Generates a [row]×[column] logistic distribution random matrix with location [mu] and scale [s].
   static List<List<double>> logistic(
       {required double mu,
       required double s,
@@ -2414,6 +2788,7 @@ extension MatrixExtension on List<List<double>> {
             column, (_) => _randomGenerator.Logistic(random, mu: mu, s: s)));
   }
 
+  /// Generates a [row]×[column] log-normal distribution random matrix with log-mean [mu] and log-std [sigma].
   static List<List<double>> lognormal(
       {required double mu,
       required double sigma,
@@ -2428,6 +2803,7 @@ extension MatrixExtension on List<List<double>> {
             (_) => _randomGenerator.Lognormal(random, mu: mu, sigma: sigma)));
   }
 
+  /// Generates a [row]-row multinomial distribution random matrix with [n] trials and probability vector [p].
   static List<List<double>> multinomial(
       {required int n, required List<double> p, required int row, int? seed}) {
     int len = p.length;
@@ -2440,6 +2816,7 @@ extension MatrixExtension on List<List<double>> {
             .toList());
   }
 
+  /// Generates a [row]×[column] Poisson distribution random matrix with rate parameter [lambda].
   static List<List<double>> poisson(
       {required double lambda,
       required int row,
@@ -2455,6 +2832,7 @@ extension MatrixExtension on List<List<double>> {
                 _randomGenerator.Poisson(random, lambda: lambda).toDouble()));
   }
 
+  /// Generates a [row]×[column] Cauchy distribution random matrix with location [x0] and scale [gamma].
   static List<List<double>> cauchy(
       {required double x0,
       required double gamma,
@@ -2469,6 +2847,7 @@ extension MatrixExtension on List<List<double>> {
             (_) => _randomGenerator.Cauchy(random, x0: x0, gamma: gamma)));
   }
 
+  /// Generates a [row]×[column] Pareto distribution random matrix with minimum value [xm] and shape [alpha].
   static List<List<double>> pareto(
       {required double xm,
       required double alpha,
@@ -2484,6 +2863,7 @@ extension MatrixExtension on List<List<double>> {
             column, (_) => _randomGenerator.Pareto(random, xm: xm, ia: ia)));
   }
 
+  /// Generates a [row]×[column] Rayleigh distribution random matrix with scale parameter [sigma].
   static List<List<double>> rayleigh(
       {required double sigma,
       required int row,
@@ -2497,6 +2877,7 @@ extension MatrixExtension on List<List<double>> {
             column, (_) => _randomGenerator.Rayleigh(random, sigma: sigma)));
   }
 
+  /// Generates a [row]×[column] triangular distribution random matrix with lower bound [a], upper bound [b], and mode [c].
   static List<List<double>> triangular(
       {required double a,
       required double b,
@@ -2512,6 +2893,7 @@ extension MatrixExtension on List<List<double>> {
             (_) => _randomGenerator.Triangular(random, a: a, b: b, c: c)));
   }
 
+  /// Generates a [row]×[column] inverse Gaussian (Wald) distribution random matrix with mean [mu] and shape [lambda].
   static List<List<double>> wald(
       {required double mu,
       required double lambda,
@@ -2526,6 +2908,7 @@ extension MatrixExtension on List<List<double>> {
             (_) => _randomGenerator.Wald(random, mu: mu, lambda: lambda)));
   }
 
+  /// Generates a [row]×[column] Weibull distribution random matrix with shape [k] and scale [lambda].
   static List<List<double>> weibull(
       {required double k,
       required double lambda,
@@ -2540,6 +2923,7 @@ extension MatrixExtension on List<List<double>> {
             (_) => _randomGenerator.Weibull(random, k: k, lambda: lambda)));
   }
 
+  /// Generates a [row]×[column] Von Mises distribution random matrix with mean direction [mu] and concentration [k].
   static List<List<double>> vonmises(
       {required double k,
       required double mu,
@@ -2554,6 +2938,7 @@ extension MatrixExtension on List<List<double>> {
             column, (_) => _randomGenerator.Vonmises(random, k: k, mu: mu)));
   }
 
+  /// Generates a [row]×[column] Student's t distribution random matrix with degrees of freedom [v] and mean [mu].
   static List<List<double>> t(
       {required int v,
       required double mu,
@@ -2568,6 +2953,7 @@ extension MatrixExtension on List<List<double>> {
             column, (_) => _randomGenerator.Student_t(random, v: v, mu: mu)));
   }
 
+  /// Generates a [row]×[column] Fréchet distribution random matrix with shape [alpha], scale [s], and location [m].
   static List<List<double>> frechet(
       {required double alpha,
       double s = 1.0,
@@ -2585,6 +2971,8 @@ extension MatrixExtension on List<List<double>> {
 
   /// ----------------------------------------------------------------------------
   /// ------------------------------Visualization----------------------------------
+  /// Aggregates matrix elements into a histogram, returning a [Range]-to-count map.
+  /// [start] and [end] define the value range; [counts] is the number of intervals.
   Map<Range, int> toHist(
       {required double start, required double end, required int counts}) {
     assert(start < end && counts > 1);
@@ -2610,6 +2998,7 @@ extension MatrixExtension on List<List<double>> {
     return histogram;
   }
 
+  /// Aggregates matrix elements into bar chart data, returning a map of each unique value to its occurrence count.
   Map<double, int> toBar() {
     Map<double, int> bar = {};
     for (var list in this) {

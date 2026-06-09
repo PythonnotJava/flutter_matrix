@@ -57,10 +57,11 @@ class Matrix extends MatrixWrapper<Matrix>{
   }
 }
 
-/// MatrixCollection不同于Matrix，它内置了一个拓展属性并且根据不同的实例进行哈希
-/// Dart标准规定，
-/// ✅ 如果 a == b 为 true，那么 a.hashCode == b.hashCode 必须为 true。
-/// ✅ 如果 a.hashCode == b.hashCode，a == b 可以是 false。
+/// MatrixCollection differs from Matrix in that it has a built-in extension property
+/// and computes its hash code based on the specific instance rather than its data.
+/// Dart standard:
+/// ✅ If a == b is true, then a.hashCode == b.hashCode must be true.
+/// ✅ If a.hashCode == b.hashCode, a == b can still be false.
 class MatrixCollection extends MatrixWrapper<MatrixCollection>{
   final Map<String, dynamic> binds = {};
 

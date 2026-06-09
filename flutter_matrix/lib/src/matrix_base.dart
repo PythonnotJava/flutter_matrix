@@ -19,6 +19,7 @@ void registerSubClassFromListConstructor(
   _subClassFromListConstructor[type] = fromListConstructor;
 }
 
+/// Looks up the registered [FromListConstructor] for type [T]; throws [StateError] if not registered.
 FromListConstructor<T> _resolveFromList<T extends MatrixBase<T>>() {
   final ctor = _subClassFromListConstructor[T];
   if (ctor == null) {
@@ -225,9 +226,8 @@ abstract class MatrixBase<T extends MatrixBase<T>> {
     }
   }
 
-  /// Overloading operators.
-  /// - Compare data between similar matrix instances
-  /// - Compare matrices and data
+  /// Internal implementation of comparison operators. [mode] corresponds to >, >=, <, <= respectively.
+  /// [other] can be a [MatrixBase] of the same type or [num].
   bool _generalOperator(int mode, Object other) {
     if (other is MatrixBase && runtimeType == other.runtimeType) {
       return switch (mode) {
@@ -250,25 +250,36 @@ abstract class MatrixBase<T extends MatrixBase<T>> {
     }
   }
 
+  /// Element-wise greater-than comparison. [other] can be a matrix of the same type or a scalar.
   bool operator >(Object other) => _generalOperator(0, other);
+
+  /// Element-wise greater-than-or-equal comparison. [other] can be a matrix of the same type or a scalar.
   bool operator >=(Object other) => _generalOperator(1, other);
+
+  /// Element-wise less-than comparison. [other] can be a matrix of the same type or a scalar.
   bool operator <(Object other) => _generalOperator(2, other);
+
+  /// Element-wise less-than-or-equal comparison. [other] can be a matrix of the same type or a scalar.
   bool operator <=(Object other) => _generalOperator(3, other);
 
+  /// Sets the data of a row by row index.
   void operator []=(int index, List<double> value) {
     var [row, column] = shape;
     assert(index >= 0 && index < row);
     self[index] = value;
   }
 
+  /// Gets the data of a row by row index.
   List<double> operator [](int index) => this.self[index];
 
+  /// Replaces row [index] data in-place using [replaceRange], preserving the original list reference.
   void replaceRow(int index, List<double> value) {
     var [row, column] = shape;
     assert(index >= 0 && index < row);
     self[index].replaceRange(0, column, value);
   }
 
+  /// Deep copy of the current matrix, returning a new instance fully independent of the original.
   T get deepcopy =>
       _fromList(self.deepcopy, known_row: shape[0], known_column: shape[1]);
 
@@ -310,6 +321,8 @@ abstract class MatrixBase<T extends MatrixBase<T>> {
   void sort({bool reverse = false, int dim = -1}) =>
       self.sortExtension(reverse: reverse, dim: dim);
 
+  /// Internal implementation of arithmetic operators. [mode] corresponds to add/subtract/multiply/divide.
+  /// [other] can be a matrix of the same type or [num].
   T _abstractOperatorAny(int mode, Object other) {
     final List<List<double>> Function(
         {int dim,
@@ -330,9 +343,16 @@ abstract class MatrixBase<T extends MatrixBase<T>> {
     }
   }
 
+  /// Element-wise matrix addition. [other] can be a matrix of the same type or [num].
   T operator +(Object other) => _abstractOperatorAny(0, other);
+
+  /// Element-wise matrix subtraction. [other] can be a matrix of the same type or [num].
   T operator -(Object other) => _abstractOperatorAny(1, other);
+
+  /// Element-wise matrix multiplication. [other] can be a matrix of the same type or [num].
   T operator *(Object other) => _abstractOperatorAny(2, other);
+
+  /// Element-wise matrix division. [other] can be a matrix of the same type or [num].
   T operator /(Object other) => _abstractOperatorAny(3, other);
 
   /// Compare the corresponding elements of the two matrices one by one.

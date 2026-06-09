@@ -286,4 +286,62 @@ mixin MatrixGeometry<T extends MatrixBase<T>> on MatrixBase<T> {
   }) =>
       _fromList(self.perspectiveProject(
           fov: fov, near: near, far: far, aspect: aspect, radian: radian));
+
+  /// Rotate 3-D points (size×3) around an arbitrary axis by [angle].
+  /// [axis] is any non-zero 3-vector (normalised internally).
+  /// [point] is any point on the axis (default: origin).
+  T rotateAroundAxis({
+    required List<double> axis,
+    required double angle,
+    List<double> point = const [0.0, 0.0, 0.0],
+    bool radian = true,
+  }) =>
+      _fromList(self.rotateAroundAxis(
+          axis: axis, angle: angle, point: point, radian: radian));
+
+  /// Scale 3-D points (size×3) along an arbitrary direction by [factor].
+  T scaleAlongAxis({
+    required List<double> dir,
+    required double factor,
+  }) =>
+      _fromList(self.scaleAlongAxis(dir: dir, factor: factor));
+
+  /// Reflect 3-D points (size×3) across a plane defined by its [normal]
+  /// passing through [point] (default: origin).
+  T reflectAcrossPlane({
+    required List<double> normal,
+    List<double> point = const [0.0, 0.0, 0.0],
+  }) =>
+      _fromList(self.reflectAcrossPlane(normal: normal, point: point));
+
+  /// Orthographic projection of 3-D points (size×3) → NDC in [-1,1]³.
+  T orthographicProject({
+    required double left,
+    required double right,
+    required double bottom,
+    required double top,
+    required double near,
+    required double far,
+  }) =>
+      _fromList(self.orthographicProject(
+          left: left, right: right, bottom: bottom,
+          top: top, near: near, far: far));
+
+  /// Oblique projection of 3-D points (size×3) onto the XY plane.
+  /// [angle] is the oblique direction; [factor] is foreshortening (0.5=cabinet, 1.0=cavalier).
+  T obliqueProject({
+    required double angle,
+    double factor = 0.5,
+    bool radian = true,
+  }) =>
+      _fromList(self.obliqueProject(angle: angle, factor: factor, radian: radian));
+
+  /// Shear 3-D points (size×3).
+  T shearTransform3d({
+    double xy = 0.0, double xz = 0.0,
+    double yx = 0.0, double yz = 0.0,
+    double zx = 0.0, double zy = 0.0,
+  }) =>
+      _fromList(self.shearTransform3d(
+          xy: xy, xz: xz, yx: yx, yz: yz, zx: zx, zy: zy));
 }

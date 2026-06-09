@@ -39,6 +39,8 @@ mixin MatrixLinalg<T extends MatrixBase<T>> on MatrixBase<T> {
 
   /// Transpose a matrix.
   T transpose() => _fromList(self.transpose);
+
+  /// Alias getter for the transpose, equivalent to [transpose].
   T get T_ => _fromList(self.transpose);
 
   /// The determinant of a square matrix.

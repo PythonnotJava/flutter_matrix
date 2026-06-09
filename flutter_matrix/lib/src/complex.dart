@@ -51,6 +51,9 @@ class Complex extends Object {
   @override
   int get hashCode => Object.hash(real, imaginary);
 
+  /// Internal abstract implementation of addition/subtraction.
+  /// When [add_mode] is true, performs addition; otherwise performs subtraction.
+  /// [other] can be [num] or [Complex].
   Complex _abstractOperator(bool add_mode, Object other) {
     final double Function(double, double) func =
         add_mode ? (x, y) => x + y : (x, y) => x - y;
@@ -67,9 +70,13 @@ class Complex extends Object {
     }
   }
 
+  /// Complex addition. [other] can be [num] or [Complex].
   Complex operator +(Object other) => _abstractOperator(true, other);
+
+  /// Complex subtraction. [other] can be [num] or [Complex].
   Complex operator -(Object other) => _abstractOperator(false, other);
 
+  /// Complex division. [other] can be [num] or [Complex].
   Complex operator /(Object other) {
     if (other is num) {
       final d = other.toDouble();
@@ -84,6 +91,7 @@ class Complex extends Object {
     }
 }
 
+  /// Complex multiplication. [other] can be [num] or [Complex].
   Complex operator *(Object other) {
     if (other is num) {
       return Complex(real: real * other, imaginary: imaginary * other);
@@ -149,10 +157,15 @@ class Complex extends Object {
     );
   }
 
+  /// Deep copy of the current complex number, returning a new instance with the same value.
   Complex get deepcopy => Complex(real: real, imaginary: imaginary);
 
   /// Convert on demand.
   List<double> get toList => [real, imaginary];
+
+  /// Converts the complex number to a [math.Point], with the real part as x and imaginary part as y.
   math.Point<double> get toPoint => math.Point(real, imaginary);
+
+  /// Converts the complex number to a [Float64x2], with the real part as the first component and imaginary part as the second.
   Float64x2 get toFloat64x2 => Float64x2(real, imaginary);
 }
